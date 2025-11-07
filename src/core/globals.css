@@ -292,16 +292,11 @@
   }
 
   .icon,
-  .icon--action,
   .icon--menu {
     @apply text-icon;
   }
 
   .icon--action {
-    @apply cursor-pointer opacity-40 hover:opacity-100 transition-opacity duration-300;
-  }
-
-  .icon--action-neutral {
     @apply cursor-pointer opacity-40 hover:opacity-100 transition-opacity duration-300;
   }
 

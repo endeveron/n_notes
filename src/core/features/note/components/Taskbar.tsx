@@ -1,0 +1,25 @@
+'use client';
+
+import MainMenu from '@/core/components/ui/MainMenu';
+import { cn } from '@/core/utils';
+
+interface TaskbarProps {
+  children?: React.ReactNode;
+  loading?: boolean;
+}
+
+const Taskbar = ({ children, loading }: TaskbarProps) => {
+  return (
+    <div
+      className={cn(
+        'flex items-center gap-2 mx-auto card bg-card/30 rounded-full my-4 p-2',
+        loading && 'opacity-40 pointer-events-none trans-o'
+      )}
+    >
+      {children}
+      <MainMenu />
+    </div>
+  );
+};
+
+export default Taskbar;

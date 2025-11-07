@@ -1,10 +1,10 @@
-export type PageParams = Promise<{ slug: string }>;
+export type PageParams = { id: string };
 
 export type SearchParams = Promise<{
   [key: string]: string | string[] | undefined;
 }>;
 
-export type TWithChildren<T = object> = T & { children?: React.ReactNode };
+export type WithChildren<T = object> = T & { children?: React.ReactNode };
 
 export type ErrorWithCode = { code?: number; message: string };
 
@@ -30,7 +30,7 @@ export enum EmailType {
   'PROMOTION' = 'PROMOTION',
 }
 
-export type StoreActionResult<T = unknown> =
+export type ActionResult<T = unknown> =
   | {
       success: true;
       data?: T;
@@ -39,3 +39,5 @@ export type StoreActionResult<T = unknown> =
       success: false;
       error?: string;
     };
+
+export type Theme = 'light' | 'dark';

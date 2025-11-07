@@ -23,3 +23,15 @@ export function generateCode(length = 8) {
   }
   return code;
 }
+
+export function createTypedMap<K extends string, V>(
+  entries: readonly (readonly [K, V])[]
+): Map<K, V> {
+  return new Map(entries);
+}
+
+export function defineEntries<const K extends string>(
+  entries: readonly (readonly [K, { light: string; dark: string }])[]
+) {
+  return entries;
+}

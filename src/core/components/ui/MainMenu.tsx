@@ -15,22 +15,25 @@ import {
   DropdownMenuTrigger,
 } from '@/core/components/ui/DropdownMenu';
 import { cn } from '@/core/utils';
+import { useSessionClient } from '@/core/features/auth/hooks/useSessionClient';
+import { useMemo } from 'react';
 
 type MainMenuProps = {
-  userData: {
-    name?: string | null;
-    email?: string | null;
-  };
   className?: string;
 };
 
-const MainMenu = ({ userData, className }: MainMenuProps) => {
-  // const router = useRouter();
+const MainMenu = ({ className }: MainMenuProps) => {
+  const { session } = useSessionClient();
   const { setTheme, theme } = useTheme();
 
-  // const handleEditQuotes = () => {
-  //   router.push('/edit-quotes');
-  // };
+  const userData = useMemo(() => {
+    if (!session) return null;
+
+    return {
+      email: session.user.email,
+      name: session.user.name,
+    };
+  }, [session]);
 
   const handleToggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -52,19 +55,19 @@ const MainMenu = ({ userData, className }: MainMenuProps) => {
     <div className={cn('main-menu h-6', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <MenuIcon className="icon--action-neutral" />
+          <MenuIcon className="icon--action" />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          {userData && (
-            <>
-              <div className="cursor-default px-4 py-2">
-                <div className="text-lg font-bold text-accent">
-                  {userData.name}
-                </div>
-                <div className="text-sm text-muted">{userData.email}</div>
+          <div className="cursor-default px-4 py-2">
+            {userData?.name ? (
+              <div className="text-lg font-bold text-accent">
+                {userData.name}
               </div>
-            </>
-          )}
+            ) : null}
+            {userData ? (
+              <div className="text-sm text-muted">{userData.email}</div>
+            ) : null}
+          </div>
 
           <DropdownMenuSeparator />
 
