@@ -3,10 +3,10 @@
 import { useState } from 'react';
 
 import LoadingIcon from '@/core/components/ui/LoadingIcon';
-import { useSessionWithRefresh } from '@/core/features/auth/hooks/use-session-with-refresh';
+import { useSessionClient } from '@/core/features/auth/hooks/useSessionClient';
 
 const SignOutButton = () => {
-  const { status, isLoading, signOutSafely } = useSessionWithRefresh();
+  const { status, isLoading, signOutSafely } = useSessionClient();
   const [pending, setPending] = useState(false);
 
   const handleClick = () => {

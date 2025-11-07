@@ -6,32 +6,27 @@
 :root {
   --radius: 0.5rem;
 
-  --hue: 270;
-  --accent-hue: 37;
+  --hue: 224;
+  --accent-hue: 197;
   --error-hue: 340;
 
-  --background: hsl(var(--hue), 10%, 95%); /* body */
+  --background: hsl(var(--hue), 10%, 92%); /* body */
   --foreground: hsl(var(--hue), 10%, 10%); /* main text */
 
   --inversed-background: hsl(var(--hue), 10%, 10%); /* main text */
   --inversed-foreground: hsl(var(--hue), 10%, 98%); /* body */
 
-  --accent: hsl(var(--accent-hue), 55%, 65%);
+  --accent: hsl(var(--accent-hue), 85%, 45%);
 
-  --btn-foreground: hsl(var(--hue), 10%, 100%);
-  --btn-background: hsl(var(--accent-hue), 85%, 40%);
-  --btn-foreground-hover: hsl(0, 0%, 0%);
-  --btn-background-hover: hsl(var(--accent-hue), 85%, 55%);
+  --btn-foreground: white;
+  --btn-background: hsl(var(--accent-hue), 85%, 45%);
+  --btn-foreground-hover: white;
+  --btn-background-hover: hsl(var(--accent-hue), 85%, 60%);
 
-  --btn-secondary-foreground: hsl(var(--hue), 10%, 50%);
-  --btn-secondary-background: hsl(var(--hue), 10%, 95%);
-  --btn-secondary-foreground-hover: hsl(var(--hue), 20%, 5%);
-  --btn-secondary-background-hover: hsl(var(--accent-hue), 55%, 70%);
-
-  --btn-accent-foreground: hsl(0, 0%, 100%);
-  --btn-accent-background: hsl(var(--accent-hue), 50%, 65%);
-  --btn-accent-foreground-hover: hsl(0, 0%, 100%);
-  --btn-accent-background-hover: hsl(var(--accent-hue), 55%, 70%);
+  --btn-secondary-foreground: hsl(var(--hue), 10%, 40%);
+  --btn-secondary-background: white;
+  --btn-secondary-foreground-hover: white;
+  --btn-secondary-background-hover: hsl(var(--accent-hue), 85%, 45%);
 
   --input: white;
   --input-border: white;
@@ -39,62 +34,57 @@
 
   --card: white;
 
-  --popover: hsl(var(--hue), 10%, 100%); /* dropdown menu */
+  --popover-border: hsl(var(--hue), 10%, 90%);
   --popover-foreground: hsl(var(--hue), 10%, 45%);
   --popover-focus: hsl(var(--hue), 10%, 95%);
 
   --error: hsl(var(--error-hue), 85%, 50%);
 
   --area: hsl(var(--hue), 10%, 95%); /* auth, sidebar */
-  --muted: hsl(var(--hue), 3%, 60%);
-  --border: hsl(var(--hue), 10%, 90%);
-  --icon: hsl(var(--accent-hue), 65%, 60%);
+  --muted: hsl(var(--hue), 10%, 60%);
+  --border: hsl(var(--hue), 10%, 70%);
+  --icon: hsl(var(--accent-hue), 80%, 45%);
   --ring: hsl(var(--hue), 10%, 15%);
   --scroll: hsl(var(--hue), 10%, 85%);
 }
 
 .dark {
-  /* --background: hsl(var(--hue), 3%, 15%); */
-  --background: hsl(var(--hue), 3%, 22%); /* body */
-  --foreground: hsl(var(--hue), 20%, 95%);
+  --background: hsl(var(--hue), 10%, 20%); /* body */
+  --foreground: hsl(var(--hue), 10%, 90%);
 
   --inversed-background: hsl(var(--hue), 20%, 95%);
-  --inversed-foreground: hsl(var(--hue), 20%, 5%);
+  --inversed-foreground: hsl(var(--hue), 10%, 20%);
 
-  --accent: hsl(var(--accent-hue), 50%, 85%);
+  --accent: hsl(var(--accent-hue), 85%, 60%);
 
-  --btn-foreground: hsl(var(--hue), 20%, 100%);
-  --btn-background: hsl(var(--accent-hue), 85%, 30%);
-  --btn-foreground-hover: hsl(0, 0%, 0%);
-  --btn-background-hover: hsl(var(--accent-hue), 85%, 45%);
+  --btn-foreground: white;
+  --btn-background: hsl(var(--accent-hue), 85%, 40%);
+  --btn-foreground-hover: white;
+  --btn-background-hover: hsl(var(--accent-hue), 85%, 50%);
 
-  --btn-secondary-foreground: hsl(var(--hue), 20%, 60%);
-  --btn-secondary-background: hsl(var(--hue), 20%, 10%);
-  --btn-secondary-foreground-hover: hsl(var(--hue), 20%, 5%);
-  --btn-secondary-background-hover: hsl(var(--accent-hue), 75%, 85%);
+  --btn-secondary-foreground: hsl(var(--hue), 10%, 60%);
+  --btn-secondary-background: hsl(var(--hue), 10%, 10%);
+  --btn-secondary-foreground-hover: white;
+  --btn-secondary-background-hover: hsl(var(--accent-hue), 85%, 40%);
 
-  --btn-accent-foreground: hsl(var(--hue), 20%, 5%);
-  --btn-accent-background: var(--accent);
-  --btn-accent-foreground-hover: hsl(var(--hue), 20%, 5%);
-  --btn-accent-background-hover: hsl(var(--accent-hue), 75%, 85%);
+  --input: hsl(var(--hue), 10%, 25%);
+  --input-border: hsl(var(--hue), 10%, 25%);
+  --input-autofill: hsl(var(--hue), 10%, 25%);
 
-  --input: hsl(var(--hue), 3%, 28%);
-  --input-border: hsl(var(--hue), 3%, 28%);
-  --input-autofill: hsl(var(--hue), 3%, 28%);
+  --card: hsl(var(--hue), 10%, 10%);
 
-  --card: hsl(var(--hue), 3%, 25%);
-
-  --popover-focus: hsl(var(--hue), 3%, 30%);
-  --popover-foreground: hsl(var(--hue), 3%, 55%);
+  --popover-focus: hsl(var(--hue), 10%, 17%);
+  --popover-border: hsl(var(--hue), 10%, 25%);
+  --popover-foreground: hsl(var(--hue), 10%, 95%);
 
   --error: hsl(var(--error-hue), 85%, 60%);
 
-  --area: hsl(var(--hue), 3%, 20%);
-  --muted: hsl(var(--hue), 3%, 55%);
-  --border: hsl(var(--hue), 3%, 30%);
-  --icon: hsl(var(--accent-hue), 55%, 85%);
-  --ring: hsl(var(--hue), 3%, 30%);
-  --scroll: hsl(var(--hue), 3%, 30%);
+  --area: hsl(var(--hue), 10%, 10%);
+  --muted: hsl(var(--hue), 10%, 60%);
+  --border: hsl(var(--hue), 10%, 35%);
+  --icon: hsl(var(--accent-hue), 85%, 65%);
+  --ring: hsl(var(--hue), 10%, 30%);
+  --scroll: hsl(var(--hue), 10%, 30%);
 }
 
 @theme inline {
@@ -131,7 +121,7 @@
 
   --color-card: var(--card);
 
-  --color-popover: var(--popover);
+  --color-popover-border: var(--popover-border);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover-focus: var(--popover-focus);
 
@@ -188,7 +178,7 @@
   }
 
   p {
-    @apply leading-6 [&:not(:first-child)]:mt-4;
+    @apply leading-6 not-first:mt-4;
   }
 
   a {
@@ -204,7 +194,7 @@
   }
 
   ::selection {
-    @apply bg-accent text-black;
+    @apply bg-accent text-white;
   }
 }
 
@@ -220,10 +210,6 @@
   .layout {
     @apply relative flex h-full;
   }
-
-  /* main {
-    @apply flex flex-1;
-  } */
 
   .sidebar {
     width: 0;
@@ -282,7 +268,7 @@
   }
 
   .card {
-    @apply rounded-xl bg-card shadow-sm transition-colors duration-300;
+    @apply rounded-sm bg-card shadow-xs transition-colors duration-300;
   }
 
   .space {
@@ -294,7 +280,7 @@
   }
 
   .inactive {
-    @apply !pointer-events-none !text-muted;
+    @apply pointer-events-none! text-muted!;
   }
 
   .inactive button {
@@ -306,16 +292,17 @@
   }
 
   .icon,
-  .icon--action {
-    @apply text-icon;
-  }
-
+  .icon--action,
   .icon--menu {
     @apply text-icon;
   }
 
   .icon--action {
-    @apply cursor-pointer opacity-70 hover:opacity-100 transition-opacity;
+    @apply cursor-pointer opacity-40 hover:opacity-100 transition-opacity duration-300;
+  }
+
+  .icon--action-neutral {
+    @apply cursor-pointer opacity-40 hover:opacity-100 transition-opacity duration-300;
   }
 
   .loading {
@@ -337,7 +324,7 @@
   }
 
   .auth-form_link {
-    @apply mt-4 text-center text-sm text-muted hover:text-accent transition-colors;
+    @apply mt-4 text-center text-sm text-muted hover:text-accent transition-colors duration-300;
   }
 
   .form-control-with-icon input {

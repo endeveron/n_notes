@@ -27,6 +27,8 @@ import {
 import { useLocalStorage } from '@/core/hooks/useLocalStorage';
 import { cn } from '@/core/utils';
 
+const getCurrentTimestamp = () => Date.now();
+
 const InviteForm = () => {
   const router = useRouter();
 
@@ -46,11 +48,10 @@ const InviteForm = () => {
 
     try {
       const storedTime = getItem<number>(INVITE_CODE_TIME_KEY);
+      const now = getCurrentTimestamp();
 
       if (storedTime) {
-        const now = Date.now();
         const timeDiff = Math.ceil((60000 - (now - storedTime)) / 1000);
-
         if (timeDiff > 0) {
           toast(`Please wait for ${timeDiff} seconds and try again`);
           return;
@@ -63,7 +64,7 @@ const InviteForm = () => {
 
       if (counter > 2) {
         toast('Please wait for 1 minute and try again');
-        setItem<number>(INVITE_CODE_TIME_KEY, Date.now());
+        setItem<number>(INVITE_CODE_TIME_KEY, now);
         return;
       }
 
@@ -112,7 +113,6 @@ const InviteForm = () => {
             loading={isPending}
             className="auth-form_button"
             type="submit"
-            variant="accent"
           >
             Continue
           </Button>

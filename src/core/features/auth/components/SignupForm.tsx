@@ -73,7 +73,6 @@ const SignUpForm = () => {
             loading={isPending}
             className="auth-form_button"
             type="submit"
-            variant="accent"
           >
             Continue
           </Button>

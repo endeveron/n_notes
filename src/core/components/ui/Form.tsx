@@ -161,7 +161,7 @@ function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
 
 const FormControlIcon = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="absolute top-1/2 translate-y-[-12px] right-2 text-icon trans-o opacity-50 hover:opacity-100 cursor-pointer">
+    <div className="absolute top-1/2 -translate-y-3 right-2 icon--action-neutral">
       {children}
     </div>
   );

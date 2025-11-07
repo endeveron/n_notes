@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { Mulish, PT_Serif } from 'next/font/google';
 
-import { Providers } from '@/core/context/providers';
 import { Toaster } from '@/core/components/ui/Sonner';
 import { APP_NAME, BASE_URL } from '@/core/constants';
+import { Providers } from '@/core/context/providers';
 
 import '@/core/globals.css';
 
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

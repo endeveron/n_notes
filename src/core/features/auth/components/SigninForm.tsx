@@ -111,7 +111,6 @@ const SignInForm = () => {
             loading={isPending}
             className="auth-form_button"
             type="submit"
-            variant="accent"
           >
             Sign in
           </Button>

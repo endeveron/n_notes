@@ -52,7 +52,7 @@ const MainMenu = ({ userData, className }: MainMenuProps) => {
     <div className={cn('main-menu h-6', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <MenuIcon className="icon--action" />
+          <MenuIcon className="icon--action-neutral" />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {userData && (

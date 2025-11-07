@@ -5,7 +5,7 @@ import { SIGNIN_REDIRECT } from '@/core/constants';
 import { authStateManager } from '@/core/features/auth/state';
 import { ExtendedSession } from '@/core/features/auth/types';
 
-interface UseSessionWithRefreshReturn {
+interface UseSessionClient {
   session: ExtendedSession | null;
   status: 'loading' | 'authenticated' | 'unauthenticated';
   isLoading: boolean;
@@ -13,7 +13,7 @@ interface UseSessionWithRefreshReturn {
   signOutSafely: () => Promise<void>;
 }
 
-export function useSessionWithRefresh(): UseSessionWithRefreshReturn {
+export function useSessionClient(): UseSessionClient {
   const { data: session, status, update } = useSession();
   const [isRefreshing, setIsRefreshing] = useState(false);
 

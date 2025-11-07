@@ -154,7 +154,6 @@ const OnboardingForm = ({ userId }: TOnboardingFormProps) => {
             loading={isPending}
             className="auth-form_button"
             type="submit"
-            variant="accent"
           >
             Create an account
           </Button>

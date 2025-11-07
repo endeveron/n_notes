@@ -5,18 +5,16 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/core/utils';
 
 const buttonVariants = cva(
-  "text-sm font-bold inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full tracking-wide cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive trans-c",
+  "font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-color duration-300",
   {
     variants: {
       variant: {
         default:
           'text-btn-foreground bg-btn-background hover:text-btn-foreground-hover hover:bg-btn-background-hover',
-        accent:
-          'text-btn-accent-foreground bg-btn-accent-background hover:text-btn-accent-foreground-hover hover:bg-btn-accent-background-hover duration-500',
         secondary:
           'text-btn-secondary-foreground bg-btn-secondary-background hover:text-btn-secondary-foreground-hover hover:bg-btn-secondary-background-hover',
         outline:
-          'border border-border text-muted hover:border-transparent hover:text-btn-accent-foreground-hover hover:bg-btn-accent-background-hover',
+          'border border-border text-muted hover:border-transparent hover:text-btn-secondary-foreground-hover hover:bg-btn-secondary-background-hover',
         ghost:
           'text-btn-secondary-foreground hover:bg-btn-secondary-background',
       },

@@ -12,7 +12,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group cursor-default"
       style={
         {
-          '--normal-bg': 'var(--popover)',
+          '--normal-bg': 'var(--card)',
           '--normal-text': 'var(--popover-foreground)',
           '--normal-border': 'transparent',
         } as React.CSSProperties
