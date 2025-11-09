@@ -1,7 +1,7 @@
 'use client';
 
-import { AcceptIcon } from '@/core/components/icons/AcceptIcon';
-import { DeclineIcon } from '@/core/components/icons/DeclineIcon';
+import { AcceptIconSmall } from '@/core/components/icons/AcceptIconSmall';
+import { DeclineIconSmall } from '@/core/components/icons/DeclineIconSmall';
 import Loading from '@/core/components/ui/Loading';
 
 interface MenuPromptProps {
@@ -23,14 +23,14 @@ const MenuPrompt = ({ loading, onAccept, onDecline }: MenuPromptProps) => {
             onClick={onAccept}
             className="w-8 h-8 rounded-full flex-center bg-card trans-c"
           >
-            <AcceptIcon className="icon--action scale-75" />
+            <AcceptIconSmall className="icon--action scale-75" />
           </div>
 
           <div
             onClick={onDecline}
             className="w-8 h-8 rounded-full flex-center bg-card trans-c"
           >
-            <DeclineIcon className="icon--action scale-75" />
+            <DeclineIconSmall className="icon--action scale-75" />
           </div>
         </div>
       )}

@@ -326,27 +326,31 @@
     @apply pr-9!;
   }
 
-  /* Quotes */
+  /* Markdown */
 
-  .quote-form {
-    @apply relative w-full mx-auto max-w-150 flex flex-col gap-4 transition-opacity;
+  /* Code blocks */
+  .prose pre code {
+    @apply my-2 rounded-md;
   }
 
-  .quote-form_button {
-    @apply w-full sm:w-56 mt-1 mx-auto;
+  /* Horizontal rules */
+  .prose hr {
+    @apply my-4 border-border;
   }
 
-  .quote-item {
-    @apply relative w-full max-w-[550px] flex flex-col p-4 text-sm font-semibold rounded-xl bg-card cursor-default shadow-xs;
+  /* Paragraphs */
+  .prose p {
+    @apply my-4;
   }
 
-  .quote-item_toolbar {
-    @apply opacity-0 h-8 z-10 absolute top-2.5 right-2 bg-card rounded-xl;
-  }
-
-  .quote-item:hover .quote-item_toolbar,
-  .quote-item_toolbar[data-touch-device='true'] {
-    @apply opacity-100;
+  /* Headings */
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    @apply text-accent font-bold;
   }
 }
 

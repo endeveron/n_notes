@@ -41,3 +41,8 @@ export type ActionResult<T = unknown> =
     };
 
 export type Theme = 'light' | 'dark';
+
+export type ColorGroup = {
+  light: string;
+  dark: string;
+};

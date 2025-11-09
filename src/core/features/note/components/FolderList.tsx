@@ -3,7 +3,7 @@
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 
-import { HomeIcon } from '@/core/components/icons/HomeIcon';
+import { FolderIcon } from '@/core/components/icons/FolderIcon';
 import { ScrollArea } from '@/core/components/ui/ScrollArea';
 import FolderItem from '@/core/features/note/components/FolderItem';
 import { useNoteStore } from '@/core/features/note/store';
@@ -32,7 +32,7 @@ const FolderList = ({ small }: FolderListProps) => {
           )}
         >
           {small ? (
-            <HomeIcon
+            <FolderIcon
               onClick={() => {
                 router.push('/');
               }}

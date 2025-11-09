@@ -20,6 +20,7 @@ export const useClipboard = (timeout: number = 2000) => {
         return true;
       } catch (error) {
         console.error('Failed to copy:', error);
+        toast('Failed to copy to clipboard');
         setCopied(false);
         return false;
       }
@@ -27,5 +28,21 @@ export const useClipboard = (timeout: number = 2000) => {
     [timeout]
   );
 
-  return { copy, copied };
+  const paste = useCallback(async () => {
+    if (typeof window === 'undefined' || !navigator?.clipboard) {
+      toast('Clipboard API is not available');
+      return null;
+    }
+
+    try {
+      const text = await navigator.clipboard.readText();
+      return text;
+    } catch (error) {
+      console.error('Failed to paste:', error);
+      toast('Failed to read from clipboard');
+      return null;
+    }
+  }, []);
+
+  return { copy, copied, paste };
 };

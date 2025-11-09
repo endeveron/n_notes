@@ -2,13 +2,10 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
 import {
-  createFolderSlice,
+  folderSlice,
   FolderSlice,
 } from '@/core/features/note/store/folderSlice';
-import {
-  createNoteSlice,
-  NoteSlice,
-} from '@/core/features/note/store/noteSlice';
+import { noteSlice, NoteSlice } from '@/core/features/note/store/noteSlice';
 import {
   createRouteSlice,
   RouteSlice,
@@ -36,8 +33,8 @@ export const useNoteStore = create<Store>()(
   devtools(
     persist(
       (...a) => ({
-        ...createFolderSlice(...a),
-        ...createNoteSlice(...a),
+        ...folderSlice(...a),
+        ...noteSlice(...a),
         ...createRouteSlice(...a),
         reset: () => a[0](initialState),
       }),

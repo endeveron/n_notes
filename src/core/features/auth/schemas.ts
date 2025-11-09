@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const email = z.string().email({
+const email = z.email({
   message: 'Please provide a valid email',
 });
 

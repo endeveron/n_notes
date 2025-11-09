@@ -1,3 +1,5 @@
+import { FolderColorKey, folderColorMap } from '@/core/features/note/maps';
+import { Theme } from '@/core/types';
 import { type ClassValue, clsx } from 'clsx';
 import crypto from 'crypto';
 import { twMerge } from 'tailwind-merge';
@@ -34,4 +36,9 @@ export function defineEntries<const K extends string>(
   entries: readonly (readonly [K, { light: string; dark: string }])[]
 ) {
   return entries;
+}
+
+export function getColorByKey(key: FolderColorKey, theme: Theme) {
+  const colorGroup = folderColorMap.get(key);
+  return colorGroup ? colorGroup[theme] : undefined;
 }

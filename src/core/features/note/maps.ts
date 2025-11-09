@@ -1,6 +1,6 @@
 import { createTypedMap, defineEntries } from '@/core/utils';
 
-const folderColors = defineEntries([
+export const folderColors = defineEntries([
   ['teal', { light: '#00c7b1', dark: '#009689' }],
   ['sky', { light: '#00bcff', dark: '#0084d1' }],
   ['purple', { light: '#c27aff', dark: '#8b00eb' }],

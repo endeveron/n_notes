@@ -1,6 +1,7 @@
+import { StateCreator } from 'zustand';
+
 import { FolderSlice } from '@/core/features/note/store/folderSlice';
 import { NoteSlice } from '@/core/features/note/store/noteSlice';
-import { StateCreator } from 'zustand';
 
 // Route Slice
 export interface RouteSlice {
@@ -19,7 +20,6 @@ export const createRouteSlice: StateCreator<
   isRootRoute: true,
 
   setRouteState: (isFolderRoute, isRootRoute) => {
-    console.log('setRouteState');
     return set({ isFolderRoute, isRootRoute });
   },
 });

@@ -1,22 +1,26 @@
-import { z } from 'zod';
+import z from 'zod';
 
-export const quoteSchema = z.object({
-  author: z.string().max(80, {
-    message: 'Maximum length 80 characters',
-  }),
-  quote: z
-    .string()
-    .nonempty({
-      message: 'Required',
-    })
-    .min(5, {
-      message: 'Quote must contain at least 5 characters',
-    })
-    .max(120, {
-      message: 'Maximum length 120 characters',
-    }),
-  transcription: z.string(),
-  translation: z.string(),
+const title = z.string().min(1, { message: 'Title is required' });
+const content = z.string();
+
+export const updateFolderSchema = z.object({
+  title,
+  color: z.string(),
 });
 
-export type QuoteSchema = z.infer<typeof quoteSchema>;
+export const updateNoteTitleSchema = z.object({
+  title,
+});
+export const updateNoteContentSchema = z.object({
+  content,
+});
+
+export const updateNoteSchema = z.object({
+  title,
+  content,
+});
+
+export type UpdateFolderSchema = z.infer<typeof updateFolderSchema>;
+export type UpdateNoteTitleSchema = z.infer<typeof updateNoteTitleSchema>;
+export type UpdateNoteContentSchema = z.infer<typeof updateNoteContentSchema>;
+export type UpdateNoteSchema = z.infer<typeof updateNoteSchema>;

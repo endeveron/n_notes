@@ -28,7 +28,7 @@ export function SessionProvider({
     (async () => {
       setTimeout(async () => {
         const newSession = await getSession();
-        console.log('SessionProvider newSession', newSession);
+        // console.log('SessionProvider newSession', newSession);
 
         if (mounted && newSession) setSession(newSession);
       }, 1000);

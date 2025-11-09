@@ -3,7 +3,7 @@
 import { FolderIcon } from '@/core/components/icons/FolderIcon';
 import { useSessionClient } from '@/core/features/auth/hooks/useSessionClient';
 import FolderList from '@/core/features/note/components/FolderList';
-import Taskbar from '@/core/features/note/components/Taskbar';
+import Taskbar from '@/core/components/ui/Taskbar';
 import { useNoteStore } from '@/core/features/note/store';
 
 const NoteClient = () => {

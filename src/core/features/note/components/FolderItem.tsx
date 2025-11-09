@@ -38,7 +38,7 @@ const FolderItem = ({
     >
       {small ? (
         <div
-          className="w-1.25 h-3.5 rounded-xs mr-1 trans-c"
+          className="w-2.5 h-2.5 rounded-full mr-1 trans-c"
           style={{ backgroundColor }}
         ></div>
       ) : (

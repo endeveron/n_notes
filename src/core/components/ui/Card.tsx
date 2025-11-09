@@ -37,11 +37,9 @@ const AnimatedCard = forwardRef<HTMLDivElement, AnimatedCardProps>(
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-      if (isOpen) {
-        setTimeout(() => setIsVisible(true), 50);
-      } else {
-        setIsVisible(false);
-      }
+      (async () => {
+        setIsVisible(isOpen);
+      })();
     }, [isOpen]);
 
     return (
@@ -82,7 +80,7 @@ const CardTitle = forwardRef<
     <h3
       ref={ref}
       className={cn(
-        'mb-6 text-accent text-4xl font-black leading-none select-none',
+        'mb-6 text-accent text-4xl font-bold leading-none select-none',
         className
       )}
       {...props}

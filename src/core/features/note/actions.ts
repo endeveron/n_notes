@@ -1,5 +1,6 @@
 'use server';
 
+import { FolderColorKey } from '@/core/features/note/maps';
 import FolderModel from '@/core/features/note/models/folder';
 import NoteModel from '@/core/features/note/models/note';
 import {
@@ -82,6 +83,76 @@ export const getFolder = async ({
   }
 };
 
+export const deleteFolder = async ({
+  folderId,
+}: {
+  folderId: string;
+}): Promise<ServerActionResult> => {
+  if (!folderId) {
+    return handleActionError('postFolder: Missing required data');
+  }
+
+  try {
+    await mongoDB.connect();
+
+    // Delete related notes
+    await NoteModel.deleteMany({ folderId });
+
+    // Delete folder
+    await FolderModel.findByIdAndDelete(folderId);
+
+    return {
+      success: true,
+    };
+  } catch (err: unknown) {
+    return handleActionError('postFolder: Unable to create folder', err);
+  }
+};
+
+export const patchFolder = async ({
+  folderId,
+  color,
+  title,
+}: {
+  folderId: string;
+  color?: FolderColorKey;
+  title?: string;
+}): Promise<ServerActionResult> => {
+  if (!folderId) {
+    return handleActionError('patchFolder: Missing required data');
+  }
+
+  try {
+    await mongoDB.connect();
+
+    const folderDoc = await FolderModel.findById(folderId);
+    if (!folderDoc) {
+      return {
+        success: false,
+        error: {
+          message: 'Not found',
+        },
+      };
+    }
+
+    // Update properties
+    if (color && color !== folderDoc.color) {
+      folderDoc.color = color;
+    }
+    if (title && title !== folderDoc.title) {
+      folderDoc.title = title;
+    }
+
+    await folderDoc.save();
+
+    return {
+      success: true,
+    };
+  } catch (err: unknown) {
+    return handleActionError('patchFolder: Unable to update folder', err);
+  }
+};
+
 export const postFolder = async ({
   userId,
 }: {
@@ -102,8 +173,6 @@ export const postFolder = async ({
       userId,
     });
 
-    console.log('postFolder: result', folder);
-
     return {
       success: true,
       data: {
@@ -112,6 +181,50 @@ export const postFolder = async ({
     };
   } catch (err: unknown) {
     return handleActionError('postFolder: Unable to create folder', err);
+  }
+};
+
+export const patchNote = async ({
+  noteId,
+  content,
+  title,
+}: {
+  noteId: string;
+  content?: string;
+  title?: string;
+}): Promise<ServerActionResult> => {
+  if (!noteId || (!content && !title)) {
+    return handleActionError('patchNote: Missing required data');
+  }
+
+  try {
+    await mongoDB.connect();
+
+    const noteDoc = await NoteModel.findById(noteId);
+    if (!noteDoc) {
+      return {
+        success: false,
+        error: {
+          message: 'Not found',
+        },
+      };
+    }
+
+    // Update properties
+    if (content !== noteDoc.content) {
+      noteDoc.content = content;
+    }
+    if (title && title !== noteDoc.title) {
+      noteDoc.title = title;
+    }
+
+    await noteDoc.save();
+
+    return {
+      success: true,
+    };
+  } catch (err: unknown) {
+    return handleActionError('patchNote: Unable to update note', err);
   }
 };
 
@@ -138,8 +251,6 @@ export const postNote = async ({
       userId,
     });
 
-    console.log('postNote: result', note);
-
     return {
       success: true,
       data: {
@@ -148,6 +259,28 @@ export const postNote = async ({
     };
   } catch (err: unknown) {
     return handleActionError('postNote: Unable to create note', err);
+  }
+};
+
+export const deleteNote = async ({
+  noteId,
+}: {
+  noteId: string;
+}): Promise<ServerActionResult> => {
+  if (!noteId) {
+    return handleActionError('deleteNote: Missing required data');
+  }
+
+  try {
+    await mongoDB.connect();
+
+    await NoteModel.findByIdAndDelete(noteId);
+
+    return {
+      success: true,
+    };
+  } catch (err: unknown) {
+    return handleActionError('deleteNote: Unable to delete note', err);
   }
 };
 
@@ -184,21 +317,3 @@ export const getFolderNotes = async ({
     return handleActionError('getFolderNotes: Unable to retrieve notes', err);
   }
 };
-
-// export const deleteQuote = async (id: string): Promise<ServerActionResult> => {
-//   if (!id) {
-//     return handleActionError('deleteQuote: Invalid quote id');
-//   }
-
-//   try {
-//     await mongoDB.connect();
-
-//     await QuoteModel.findByIdAndDelete(id);
-
-//     return {
-//       success: true,
-//     };
-//   } catch (err: unknown) {
-//     return handleActionError('Unable to delete quote item in db', err);
-//   }
-// };

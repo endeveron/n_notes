@@ -1,6 +1,11 @@
 import { StateCreator } from 'zustand';
 
-import { getFolderNotes, postNote } from '@/core/features/note/actions';
+import {
+  deleteNote,
+  getFolderNotes,
+  patchNote,
+  postNote,
+} from '@/core/features/note/actions';
 import { FolderSlice } from '@/core/features/note/store/folderSlice';
 import { RouteSlice } from '@/core/features/note/store/routeSlice';
 import { NoteItem } from '@/core/features/note/types';
@@ -11,17 +16,31 @@ export interface NoteSlice {
   fetchingFolderNotes: boolean;
   folderNotes: NoteItem[];
   notes: NoteItem[];
-  fetchFolderNotes: (args: {
-    folderId: string;
-    userId: string;
-  }) => Promise<boolean>;
+  removingNote: boolean;
+  updatingNote: boolean;
   createNote: (args: {
     folderId: string;
     userId: string;
   }) => Promise<ServerActionResult<{ id: string }>>;
+  fetchFolderNotes: (args: {
+    folderId: string;
+    userId: string;
+  }) => Promise<boolean>;
+  removeNote: (args: {
+    folderId: string;
+    noteId: string;
+    userId: string;
+  }) => Promise<ServerActionResult>;
+  updateNote: (args: {
+    folderId: string;
+    noteId: string;
+    userId: string;
+    content?: string;
+    title?: string;
+  }) => Promise<ServerActionResult>;
 }
 
-export const createNoteSlice: StateCreator<
+export const noteSlice: StateCreator<
   FolderSlice & NoteSlice & RouteSlice,
   [],
   [],
@@ -31,13 +50,15 @@ export const createNoteSlice: StateCreator<
   fetchingFolderNotes: false,
   folderNotes: [],
   notes: [],
+  removingNote: false,
+  updatingNote: false,
 
   createNote: async ({ folderId, userId }) => {
     if (!userId) {
       return { success: false, error: { message: 'Unauthorized' } };
     }
     if (!folderId) {
-      return { success: false, error: { message: 'Invalid folder id' } };
+      return { success: false, error: { message: 'Missing folder id' } };
     }
 
     set({ creatingNote: true });
@@ -63,5 +84,48 @@ export const createNoteSlice: StateCreator<
     }
     set({ fetchingFolderNotes: false });
     return false;
+  },
+
+  removeNote: async ({ folderId, noteId, userId }) => {
+    if (!userId) {
+      return { success: false, error: { message: 'Unauthorized' } };
+    }
+    if (!folderId) {
+      return { success: false, error: { message: 'Missing folder id' } };
+    }
+    if (!noteId) {
+      return { success: false, error: { message: 'Missing note id' } };
+    }
+
+    set({ removingNote: true });
+    const res = await deleteNote({ noteId });
+    if (res.success) {
+      get().fetchFolderNotes({ folderId, userId }); // Refresh folder notes
+    }
+    set({ removingNote: false });
+    return res;
+  },
+
+  updateNote: async ({ folderId, noteId, userId, content, title }) => {
+    if (!userId) {
+      return { success: false, error: { message: 'Unauthorized' } };
+    }
+    if (!folderId) {
+      return { success: false, error: { message: 'Missing folder id' } };
+    }
+    if (!noteId) {
+      return { success: false, error: { message: 'Missing note id' } };
+    }
+    if (!content && !title) {
+      return { success: false, error: { message: 'Missing required data' } };
+    }
+
+    set({ updatingNote: true });
+    const res = await patchNote({ noteId, content, title });
+    if (res.success) {
+      get().fetchFolderNotes({ folderId, userId }); // Refresh folder notes
+    }
+    set({ updatingNote: false });
+    return res;
   },
 });
