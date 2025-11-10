@@ -9,9 +9,11 @@ import {
   NoteDB,
   NoteItem,
 } from '@/core/features/note/types';
+import { decryptString, encryptString } from '@/core/lib/crypto';
 import { mongoDB } from '@/core/lib/mongo';
 import { ServerActionResult } from '@/core/types';
 import { handleActionError } from '@/core/utils/error';
+import { parseNoteItem } from '@/core/utils/note';
 
 export const getFolders = async ({
   userId,
@@ -65,14 +67,7 @@ export const getFolder = async ({
       };
     }
 
-    const noteItems: NoteItem[] = noteDocs.map((d) => ({
-      content: d.content,
-      folderId: id,
-      id: d._id.toString(),
-      tags: d.tags,
-      timestamp: d.timestamp,
-      title: d.title,
-    }));
+    const noteItems: NoteItem[] = noteDocs.map((d) => parseNoteItem(d));
 
     return {
       success: true,
@@ -214,6 +209,9 @@ export const patchNote = async ({
     if (content !== noteDoc.content) {
       noteDoc.content = content;
     }
+    if (!content && noteDoc.encrypted) {
+      noteDoc.encrypted = false;
+    }
     if (title && title !== noteDoc.title) {
       noteDoc.title = title;
     }
@@ -225,6 +223,140 @@ export const patchNote = async ({
     };
   } catch (err: unknown) {
     return handleActionError('patchNote: Unable to update note', err);
+  }
+};
+
+export const getNoteDecrypt = async ({
+  noteId,
+}: {
+  noteId: string;
+}): Promise<ServerActionResult<string>> => {
+  if (!noteId) {
+    return handleActionError('getNoteDecrypt: Missing note id');
+  }
+
+  try {
+    await mongoDB.connect();
+
+    const noteDoc = await NoteModel.findById(noteId);
+    if (!noteDoc) {
+      return {
+        success: false,
+        error: {
+          message: 'Not found',
+        },
+      };
+    }
+
+    const content = noteDoc.content;
+    if (!content) {
+      return {
+        success: false,
+        error: {
+          message: 'Missing note content to decrypt',
+        },
+      };
+    }
+
+    // Decrypt content
+    const decryptedContent = decryptString(content);
+
+    return {
+      success: true,
+      data: decryptedContent,
+    };
+  } catch (err: unknown) {
+    return handleActionError('getNoteDecrypt: Unable to decrypt note', err);
+  }
+};
+
+export const patchNoteDecrypt = async ({
+  noteId,
+}: {
+  noteId: string;
+}): Promise<ServerActionResult<string>> => {
+  if (!noteId) {
+    return handleActionError('patchNoteDecrypt: Missing note id');
+  }
+
+  try {
+    await mongoDB.connect();
+
+    const noteDoc = await NoteModel.findById(noteId);
+    if (!noteDoc) {
+      return {
+        success: false,
+        error: {
+          message: 'Not found',
+        },
+      };
+    }
+
+    const content = noteDoc.content;
+    if (!content) {
+      return {
+        success: false,
+        error: {
+          message: 'Missing note content to decrypt',
+        },
+      };
+    }
+
+    // Decrypt content and update note document
+    noteDoc.content = decryptString(content);
+    noteDoc.encrypted = false;
+    await noteDoc.save();
+
+    return {
+      success: true,
+    };
+  } catch (err: unknown) {
+    return handleActionError('patchNoteDecrypt: Unable to decrypt note', err);
+  }
+};
+
+export const patchNoteEncrypt = async ({
+  noteId,
+  content,
+  title,
+}: {
+  noteId: string;
+  content: string;
+  title?: string;
+}): Promise<ServerActionResult> => {
+  if (!noteId || !content) {
+    return handleActionError('patchNoteEncrypt: Missing required data');
+  }
+
+  try {
+    await mongoDB.connect();
+
+    const noteDoc = await NoteModel.findById(noteId);
+    if (!noteDoc) {
+      return {
+        success: false,
+        error: {
+          message: 'Not found',
+        },
+      };
+    }
+
+    // Encrypt content
+    const encryptedContent = encryptString(content);
+
+    // Update note document
+    if (title && title !== noteDoc.title) {
+      noteDoc.title = title;
+    }
+    noteDoc.content = encryptedContent;
+    noteDoc.encrypted = true;
+    await noteDoc.save();
+
+    return {
+      success: true,
+    };
+  } catch (err: unknown) {
+    return handleActionError('patchNoteEncrypt: Unable to encrypt note', err);
   }
 };
 
@@ -300,14 +432,7 @@ export const getFolderNotes = async ({
 
     const noteDocs = await NoteModel.find<NoteDB>({ folderId, userId });
 
-    const noteItems: NoteItem[] = noteDocs.map((d) => ({
-      content: d.content,
-      folderId: d.folderId,
-      id: d._id.toString(),
-      tags: d.tags,
-      timestamp: d.timestamp,
-      title: d.title,
-    }));
+    const noteItems: NoteItem[] = noteDocs.map((d) => parseNoteItem(d));
 
     return {
       success: true,

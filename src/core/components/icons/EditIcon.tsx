@@ -13,7 +13,7 @@ export function EditIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeLinejoin="round"
       {...props}
     >
-      <path d="M18 10L21 7L17 3L14 6M18 10L8 20H4V16L14 6M18 10L14 6" />
+      <path d="M18 10.4118L21 7.23529L17 3L14 6.17647M18 10.4118L8 21H4V16.7647L14 6.17647M18 10.4118L14 6.17647" />
     </svg>
   );
 }

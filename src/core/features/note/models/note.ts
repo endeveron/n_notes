@@ -10,6 +10,7 @@ const noteSchema = new Schema<Note>(
     timestamp: { type: Number, required: true },
     title: { type: String, required: true },
     userId: { type: String, required: true },
+    encrypted: { type: Boolean, default: false },
   },
   {
     versionKey: false,

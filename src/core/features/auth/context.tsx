@@ -1,8 +1,8 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
 import { Session } from 'next-auth';
 import { getSession } from 'next-auth/react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const SessionContext = createContext<Session | null>(null);
 
@@ -15,20 +15,12 @@ export function SessionProvider({
 }) {
   const [session, setSession] = useState(initialSession);
 
-  // // Optional: keep in sync after mount
-  // useEffect(() => {
-  //   if (!initialSession) {
-  //     getSession().then(setSession);
-  //   }
-  // }, [initialSession]);
-
   useEffect(() => {
     let mounted = true;
 
     (async () => {
       setTimeout(async () => {
         const newSession = await getSession();
-        // console.log('SessionProvider newSession', newSession);
 
         if (mounted && newSession) setSession(newSession);
       }, 1000);

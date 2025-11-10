@@ -34,7 +34,12 @@ const FolderItem = ({
   return (
     <div
       onClick={handleClick}
-      className={cn('cursor-pointer', small ? 'flex items-center' : 'w-16')}
+      className={cn(
+        'cursor-pointer',
+        small
+          ? 'flex items-center hover:bg-card rounded-full pl-2 pr-2.5 trans-c'
+          : 'w-16'
+      )}
     >
       {small ? (
         <div
@@ -54,7 +59,7 @@ const FolderItem = ({
 
       <div
         className="text-xs font-semibold tracking-wider text-center truncate trans-c"
-        title={title}
+        title={small ? '' : title}
       >
         {title}
       </div>

@@ -1,5 +1,6 @@
-import { FolderColorKey } from '@/core/features/note/maps';
 import { ObjectId } from 'mongoose';
+
+import { FolderColorKey } from '@/core/features/note/maps';
 
 export type Folder = {
   color: FolderColorKey;
@@ -18,6 +19,8 @@ export type Note = {
   timestamp: number;
   title: string;
   userId: string;
+  encrypted: boolean;
+  decrypted?: boolean;
 };
 export type NoteDB = Note & { _id: ObjectId };
 export type NoteItem = Omit<Note, 'userId'> & { id: string };

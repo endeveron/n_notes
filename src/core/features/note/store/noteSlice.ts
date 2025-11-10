@@ -3,7 +3,10 @@ import { StateCreator } from 'zustand';
 import {
   deleteNote,
   getFolderNotes,
+  getNoteDecrypt,
   patchNote,
+  patchNoteDecrypt,
+  patchNoteEncrypt,
   postNote,
 } from '@/core/features/note/actions';
 import { FolderSlice } from '@/core/features/note/store/folderSlice';
@@ -22,6 +25,23 @@ export interface NoteSlice {
     folderId: string;
     userId: string;
   }) => Promise<ServerActionResult<{ id: string }>>;
+  decryptNote: (args: {
+    folderId: string;
+    noteId: string;
+    userId: string;
+  }) => Promise<ServerActionResult<string>>;
+  decryptNoteInDB: (args: {
+    folderId: string;
+    noteId: string;
+    userId: string;
+  }) => Promise<ServerActionResult>;
+  encryptNote: (args: {
+    folderId: string;
+    noteId: string;
+    userId: string;
+    content: string;
+    title?: string;
+  }) => Promise<ServerActionResult>;
   fetchFolderNotes: (args: {
     folderId: string;
     userId: string;
@@ -67,6 +87,67 @@ export const noteSlice: StateCreator<
       await get().fetchFolderNotes({ folderId, userId }); // Refresh notes
     }
     set({ creatingNote: false });
+    return res;
+  },
+
+  decryptNote: async ({ folderId, noteId, userId }) => {
+    if (!userId) {
+      return { success: false, error: { message: 'Unauthorized' } };
+    }
+    if (!folderId) {
+      return { success: false, error: { message: 'Missing folder id' } };
+    }
+    if (!noteId) {
+      return { success: false, error: { message: 'Missing note id' } };
+    }
+
+    set({ updatingNote: true });
+    const res = await getNoteDecrypt({ noteId });
+    // !! Do not refresh folder notes
+    set({ updatingNote: false });
+    return res;
+  },
+
+  decryptNoteInDB: async ({ folderId, noteId, userId }) => {
+    if (!userId) {
+      return { success: false, error: { message: 'Unauthorized' } };
+    }
+    if (!folderId) {
+      return { success: false, error: { message: 'Missing folder id' } };
+    }
+    if (!noteId) {
+      return { success: false, error: { message: 'Missing note id' } };
+    }
+
+    set({ updatingNote: true });
+    const res = await patchNoteDecrypt({ noteId });
+    if (res.success) {
+      get().fetchFolderNotes({ folderId, userId }); // Refresh folder notes
+    }
+    set({ updatingNote: false });
+    return res;
+  },
+
+  encryptNote: async ({ folderId, noteId, userId, content, title }) => {
+    if (!userId) {
+      return { success: false, error: { message: 'Unauthorized' } };
+    }
+    if (!folderId) {
+      return { success: false, error: { message: 'Missing folder id' } };
+    }
+    if (!noteId) {
+      return { success: false, error: { message: 'Missing note id' } };
+    }
+    if (!content) {
+      return { success: false, error: { message: 'Missing required data' } };
+    }
+
+    set({ updatingNote: true });
+    const res = await patchNoteEncrypt({ noteId, content, title });
+    if (res.success) {
+      get().fetchFolderNotes({ folderId, userId }); // Refresh folder notes
+    }
+    set({ updatingNote: false });
     return res;
   },
 

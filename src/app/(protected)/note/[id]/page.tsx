@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import 'highlight.js/styles/github-dark.css';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
@@ -13,8 +13,11 @@ import { toast } from 'sonner';
 import { ClearIcon } from '@/core/components/icons/ClearIcon';
 import { EditIcon } from '@/core/components/icons/EditIcon';
 import { EyeIcon } from '@/core/components/icons/EyeIcon';
+import { FileIcon } from '@/core/components/icons/FileIcon';
+import { LockIcon } from '@/core/components/icons/LockIcon';
 import { SaveIcon } from '@/core/components/icons/SaveIcon';
 import { TrashIcon } from '@/core/components/icons/TrashIcon';
+import { UnlockIcon } from '@/core/components/icons/UnlockIcon';
 import { Button } from '@/core/components/ui/Button';
 import {
   Form,
@@ -25,10 +28,11 @@ import {
   FormMessage,
   FormTextarea,
 } from '@/core/components/ui/Form';
+import LoadingIcon from '@/core/components/ui/LoadingIcon';
 import { NavBack } from '@/core/components/ui/NavBack';
+import Taskbar from '@/core/components/ui/Taskbar';
 import TaskbarPrompt from '@/core/components/ui/TaskbarPrompt';
 import FolderList from '@/core/features/note/components/FolderList';
-import Taskbar from '@/core/components/ui/Taskbar';
 import {
   updateNoteContentSchema,
   UpdateNoteContentSchema,
@@ -39,6 +43,7 @@ import { useNoteStore } from '@/core/features/note/store';
 import { useNoteInitializer } from '@/core/features/note/store/useNoteInitializer';
 import { NoteItem } from '@/core/features/note/types';
 import { useClipboard } from '@/core/hooks/useClipboard';
+import { ServerActionResult } from '@/core/types';
 import { cn } from '@/core/utils';
 
 export default function NotePage() {
@@ -46,11 +51,14 @@ export default function NotePage() {
   const { noteId, userId } = useNoteInitializer();
   const { paste } = useClipboard();
 
+  const decryptNote = useNoteStore((s) => s.decryptNote);
+  const decryptNoteInDB = useNoteStore((s) => s.decryptNoteInDB);
+  const encryptNote = useNoteStore((s) => s.encryptNote);
   const folderNotes = useNoteStore((s) => s.folderNotes);
-  const removingNote = useNoteStore((s) => s.removingNote);
-  const updatingNote = useNoteStore((s) => s.updatingNote);
   const removeNote = useNoteStore((s) => s.removeNote);
+  const removingNote = useNoteStore((s) => s.removingNote);
   const updateNote = useNoteStore((s) => s.updateNote);
+  const updatingNote = useNoteStore((s) => s.updatingNote);
 
   const [showContent, setShowContent] = useState(false);
   const [note, setNote] = useState<NoteItem | null>(null);
@@ -71,14 +79,19 @@ export default function NotePage() {
     },
   });
 
-  const titleIsDirty = titleForm.formState.isDirty;
-  const contentIsDirty = contentForm.formState.isDirty;
-
   const hasChangesRef = useRef(false);
-
   const content = contentForm.watch('content');
 
+  const folderId = note && note.folderId;
+  const titleIsDirty = titleForm.formState.isDirty;
+  const contentIsDirty = contentForm.formState.isDirty;
+  const contentIsEmpty = note && !note.content && !content;
+  const contentIsEncrypted = note && note.encrypted;
+  const contentIsDecrypted = note && note.decrypted;
+
   const handleToggleMode = () => {
+    if (contentIsEncrypted) return;
+
     if (editMode) {
       // When switching from edit to view, update the note with current form values
       const currentContent = contentForm.getValues('content');
@@ -120,10 +133,44 @@ export default function NotePage() {
     );
   };
 
-  const handleSaveNote = async () => {
-    if (!note || !noteId || !userId) return;
+  const handleEncryptNote = async () => {
+    if (!noteId || !folderId || !userId || contentIsEmpty) return;
 
-    const folderId = note.folderId;
+    const res = await encryptNote({
+      folderId,
+      noteId,
+      userId,
+      content,
+    });
+
+    if (!res.success) {
+      toast(res.error.message ?? 'Unable to encrypt note');
+      return;
+    }
+
+    toast('Note content is encrypted and safe');
+  };
+
+  const handleDecryptNoteInDB = async () => {
+    if (!noteId || !folderId || !userId) return;
+
+    const res = await decryptNoteInDB({
+      folderId,
+      noteId,
+      userId,
+    });
+
+    if (!res.success) {
+      toast(res.error.message ?? 'Unable to decrypt note in db');
+      return;
+    }
+
+    toast('Note content is decrypted and may be exposed');
+  };
+
+  const handleSaveNote = async () => {
+    if (!note || !noteId || !folderId || !userId) return;
+
     const title = titleForm.getValues('title');
     const content = contentForm.getValues('content');
 
@@ -133,13 +180,31 @@ export default function NotePage() {
 
     if (!titleValid || !contentValid) return;
 
-    const res = await updateNote({
+    const noteData: {
+      folderId: string;
+      noteId: string;
+      userId: string;
+      content?: string;
+      title?: string;
+    } = {
+      content,
       folderId,
       noteId,
       userId,
       title,
-      content,
-    });
+    };
+
+    let res: ServerActionResult;
+
+    // If content is been decrypted locally
+    if (contentIsDecrypted) {
+      res = await encryptNote({
+        ...noteData,
+        content,
+      });
+    } else {
+      res = await updateNote(noteData);
+    }
 
     if (!res.success) {
       toast(res.error.message ?? 'Unable to update note');
@@ -186,6 +251,48 @@ export default function NotePage() {
   const handleRemoveNoteDecline = () => {
     setRemoveNotePrompt(false);
   };
+
+  const decryptNoteContentLocally = useCallback(async () => {
+    if (!noteId || !folderId || !userId) return;
+
+    const res = await decryptNote({
+      folderId,
+      noteId,
+      userId,
+    });
+
+    if (!res.success) {
+      toast(res.error.message ?? 'Unable to decrypt note content locally');
+      return;
+    }
+
+    if (!res.data) {
+      toast('Unable to decrypt note content');
+      return;
+    }
+
+    const decryptedContent = res.data;
+
+    setTimeout(() => {
+      setNote((prev) =>
+        prev
+          ? {
+              ...prev,
+              content: decryptedContent,
+              encrypted: false,
+              decrypted: true,
+            }
+          : null
+      );
+    }, 50);
+  }, [decryptNote, folderId, noteId, userId]);
+
+  // Auto-decrypt content
+  useEffect(() => {
+    if (contentIsEncrypted && !contentIsDecrypted) {
+      decryptNoteContentLocally();
+    }
+  }, [contentIsEncrypted, contentIsDecrypted, decryptNoteContentLocally]);
 
   // Update ref when forms change
   useEffect(() => {
@@ -237,7 +344,7 @@ export default function NotePage() {
         showContent && 'opacity-100'
       )}
     >
-      <div className="min-h-20 flex items-center gap-4">
+      <div className="sticky z-10 top-0 min-h-20 flex items-center gap-4 bg-background trans-c">
         <div className="flex flex-1 items-center gap-4">
           <NavBack />
 
@@ -261,8 +368,13 @@ export default function NotePage() {
           ) : null}
 
           {note && !editMode ? (
-            <div className="py-4 text-xl font-bold cursor-default">
-              {note.title}
+            <div className="flex items-center gap-1">
+              <div className="text-accent">
+                {contentIsEncrypted ? <LockIcon /> : <FileIcon />}
+              </div>
+              <div className="py-4 text-xl font-bold cursor-default">
+                {note.title}
+              </div>
             </div>
           ) : null}
         </div>
@@ -277,70 +389,119 @@ export default function NotePage() {
           ) : (
             <>
               {hasChangesRef.current ? (
-                <SaveIcon
+                <div
                   onClick={handleSaveNote}
                   className="ml-1 text-accent cursor-pointer trans-c"
-                />
+                  title="Save changes"
+                >
+                  <SaveIcon />
+                </div>
+              ) : null}
+
+              {contentIsDecrypted ? (
+                <div
+                  onClick={handleDecryptNoteInDB}
+                  className="ml-1 icon--action"
+                  title="Decrypt content in DB"
+                >
+                  <UnlockIcon />
+                </div>
+              ) : null}
+
+              {!contentIsEncrypted && !contentIsEmpty && !contentIsDecrypted ? (
+                <div
+                  onClick={handleEncryptNote}
+                  className="ml-1 text-accent cursor-pointer"
+                  title="Encrypt note content"
+                >
+                  <LockIcon />
+                </div>
               ) : null}
 
               <div onClick={handleToggleMode} className="ml-1 icon--action">
-                {editMode ? <EyeIcon /> : <EditIcon />}
+                {editMode ? (
+                  <div title="Preview mode">
+                    <EyeIcon />
+                  </div>
+                ) : (
+                  <div title="Edit mode">
+                    <EditIcon />
+                  </div>
+                )}
               </div>
 
               {content ? (
-                <ClearIcon
+                <div
                   onClick={handleClearContent}
                   className="ml-1 icon--action"
-                />
+                  title="Clear note content"
+                >
+                  <ClearIcon />
+                </div>
               ) : null}
-              <TrashIcon
+
+              <div
                 onClick={handleRemoveNote}
                 className="ml-1 icon--action"
-              />
+                title="Delete note"
+              >
+                <TrashIcon />
+              </div>
             </>
           )}
         </Taskbar>
       </div>
 
       <div className="flex-1">
-        {!editMode && note && !note.content && !content ? (
-          <div className="my-8 flex-center">
-            <Button
-              onClick={handlePasteContent}
-              variant="outline"
-              className="fade px-6"
-            >
-              Paste content from clipboard
-            </Button>
-          </div>
-        ) : null}
-
-        {editMode ? (
-          <Form {...contentForm}>
-            <form className={cn('w-full', updatingNote && 'inactive')}>
-              <FormField
-                control={contentForm.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormControl>
-                      <FormTextarea className="" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-        ) : (
-          <article className="prose prose-lg dark:prose-invert max-w-none cursor-default">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeHighlight]}
-            >
-              {note.content}
-            </ReactMarkdown>
-          </article>
+        {note && (
+          <>
+            {contentIsEncrypted ? (
+              <div className="size-full flex-center select-none">
+                <div className="flex items-center gap-2">
+                  <div className="scale-75">
+                    <LoadingIcon />
+                  </div>
+                  <div className="text-muted">Decrypting content...</div>
+                </div>
+              </div>
+            ) : editMode ? (
+              <Form {...contentForm}>
+                <form className={cn('w-full', updatingNote && 'inactive')}>
+                  <FormField
+                    control={contentForm.control}
+                    name="content"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <FormTextarea className="" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </form>
+              </Form>
+            ) : contentIsEmpty ? (
+              <div className="my-8 flex-center">
+                <Button
+                  onClick={handlePasteContent}
+                  variant="outline"
+                  className="fade px-6"
+                >
+                  Paste content from clipboard
+                </Button>
+              </div>
+            ) : (
+              <article className="prose prose-lg dark:prose-invert max-w-none cursor-default">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeHighlight]}
+                >
+                  {note.content}
+                </ReactMarkdown>
+              </article>
+            )}
+          </>
         )}
       </div>
 

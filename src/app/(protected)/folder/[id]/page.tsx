@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { EditIcon } from '@/core/components/icons/EditIcon';
-import { FileIcon } from '@/core/components/icons/FileIcon';
+import { FilePlusIcon } from '@/core/components/icons/FilePlusIcon';
 import { FolderFilledIcon } from '@/core/components/icons/FolderFilledIcon';
 import { TrashIcon } from '@/core/components/icons/TrashIcon';
 import { Button } from '@/core/components/ui/Button';
@@ -40,10 +40,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/core/components/ui/Select';
+import Taskbar from '@/core/components/ui/Taskbar';
 import TaskbarPrompt from '@/core/components/ui/TaskbarPrompt';
 import FolderList from '@/core/features/note/components/FolderList';
 import NoteList from '@/core/features/note/components/NoteList';
-import Taskbar from '@/core/components/ui/Taskbar';
 import { FolderColorKey, folderColors } from '@/core/features/note/maps';
 import {
   updateFolderSchema,
@@ -186,7 +186,7 @@ export default function FolderPage() {
         showContent && 'opacity-100'
       )}
     >
-      <div className="h-20 flex items-center gap-4">
+      <div className="sticky z-10 top-0 min-h-20 flex items-center gap-4 bg-background trans-c">
         <div className="flex flex-1 items-center gap-4">
           <NavBack route="/" />
 
@@ -215,14 +215,19 @@ export default function FolderPage() {
             />
           ) : (
             <>
-              <FileIcon
+              <div
                 onClick={handleCreateNote}
                 className="ml-1 icon--action"
-              />
+                title="Create a note"
+              >
+                <FilePlusIcon />
+              </div>
 
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <EditIcon className="ml-1 icon--action" />
+                  <div className="ml-1 icon--action" title="Edit folder">
+                    <EditIcon />
+                  </div>
                 </DialogTrigger>
 
                 <DialogContent className="max-w-md">
@@ -312,10 +317,13 @@ export default function FolderPage() {
                 </DialogContent>
               </Dialog>
 
-              <TrashIcon
+              <div
                 onClick={handleRemoveFolder}
                 className="ml-1 icon--action"
-              />
+                title="Delete folder"
+              >
+                <TrashIcon />
+              </div>
             </>
           )}
         </Taskbar>
