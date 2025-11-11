@@ -54,7 +54,6 @@ const AnimatedCard = forwardRef<HTMLDivElement, AnimatedCardProps>(
         <div
           ref={ref}
           className={cn(
-            // 'm-4 relative max-w-md flex-center flex-col px-6 py-8 rounded-2xl bg-card cursor-default trans-a',
             'relative flex-center flex-col cursor-default trans-a',
             isVisible
               ? 'scale-100 opacity-100 translate-y-0'

@@ -12,7 +12,7 @@ export function AppIcon(props: React.SVGProps<SVGSVGElement>) {
         d="M0 512C0 229.23 229.23 0 512 0C794.77 0 1024 229.23 1024 512C1024 794.77 794.77 1024 512 1024C229.23 1024 0 794.77 0 512Z"
       />
       <path
-        stroke="#4ECDFF"
+        stroke="#22aee5"
         strokeWidth={40}
         strokeLinecap="round"
         strokeLinejoin="round"
