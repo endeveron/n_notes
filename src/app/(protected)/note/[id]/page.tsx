@@ -2,14 +2,14 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import 'highlight.js/styles/github-dark.css';
-import { useRouter } from 'next/navigation';
+import { Lock, LockOpen } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
-import { Lock, LockOpen } from 'lucide-react';
 
 import { ClearIcon } from '@/core/components/icons/ClearIcon';
 import { EditIcon } from '@/core/components/icons/EditIcon';
@@ -29,6 +29,7 @@ import {
   FormMessage,
   FormTextarea,
 } from '@/core/components/ui/Form';
+import Loading from '@/core/components/ui/Loading';
 import LoadingIcon from '@/core/components/ui/LoadingIcon';
 import { NavBack } from '@/core/components/ui/NavBack';
 import Taskbar from '@/core/components/ui/Taskbar';
@@ -49,6 +50,7 @@ import { cn } from '@/core/utils';
 
 export default function NotePage() {
   const router = useRouter();
+  const pathname = usePathname();
   const { noteId, userId } = useNoteInitializer();
   const { paste } = useClipboard();
 
@@ -315,6 +317,9 @@ export default function NotePage() {
   useEffect(() => {
     if (!folderNotes.length) return;
 
+    // Only run this effect if we're actually on a note page
+    if (!pathname.includes('/note/')) return;
+
     (async () => {
       const index = folderNotes.findIndex((n) => n.id === noteId);
 
@@ -345,8 +350,6 @@ export default function NotePage() {
       content: note.content,
     });
   }, [contentForm, note, titleForm]);
-
-  if (!note) return null;
 
   return (
     <div
@@ -464,7 +467,7 @@ export default function NotePage() {
       </div>
 
       <div className="flex-1">
-        {note && (
+        {note ? (
           <>
             {contentIsEncrypted ? (
               <div className="size-full flex-center select-none">
@@ -513,6 +516,10 @@ export default function NotePage() {
               </article>
             )}
           </>
+        ) : (
+          <div className="mt-20 flex-center">
+            <Loading delay={2000} />
+          </div>
         )}
       </div>
 

@@ -171,14 +171,6 @@ export default function FolderPage() {
     });
   }, [folderData, form]);
 
-  if (fetchingFolderNotes) {
-    return (
-      <div className="size-full flex-center">
-        <Loading delay={2000} />
-      </div>
-    );
-  }
-
   return (
     <div
       className={cn(
@@ -330,7 +322,13 @@ export default function FolderPage() {
       </div>
 
       <div className="flex-1">
-        <NoteList notes={folderNotes} />
+        {fetchingFolderNotes ? (
+          <div className="mt-20 flex-center">
+            <Loading delay={2000} />
+          </div>
+        ) : (
+          <NoteList notes={folderNotes} />
+        )}
       </div>
       <div className="flex-center">
         <FolderList small />
