@@ -6,14 +6,10 @@ import {
   FolderSlice,
 } from '@/core/features/note/store/folderSlice';
 import { noteSlice, NoteSlice } from '@/core/features/note/store/noteSlice';
-import {
-  createRouteSlice,
-  RouteSlice,
-} from '@/core/features/note/store/routeSlice';
 
 type Store = FolderSlice &
   NoteSlice &
-  RouteSlice & {
+  FolderSlice & {
     reset: () => void;
   };
 
@@ -25,8 +21,6 @@ const initialState = {
   fetchingFolderNotes: false,
   folderNotes: [],
   notes: [],
-  isFolderRoute: false,
-  isRootRoute: true,
 };
 
 export const useNoteStore = create<Store>()(
@@ -35,14 +29,13 @@ export const useNoteStore = create<Store>()(
       (...a) => ({
         ...folderSlice(...a),
         ...noteSlice(...a),
-        ...createRouteSlice(...a),
         reset: () => a[0](initialState),
       }),
       {
         name: 'app-store',
         partialize: (state) => ({
           folders: state.folders,
-          notes: state.notes,
+          folderNotes: state.folderNotes,
         }),
       }
     )

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
+
 import { useSessionClient } from '@/core/features/auth/hooks/useSessionClient';
 import { useNoteStore } from '@/core/features/note/store';
 
@@ -11,11 +12,9 @@ export function useNoteInitializer() {
 
   const userId = session?.user.id;
 
-  const { folderId, isFolderRoute, isRootRoute, noteId } = useMemo(() => {
+  const { folderId, noteId } = useMemo(() => {
     const pathArr = pathname.split('/');
     return {
-      isFolderRoute: pathArr.includes('folder'),
-      isRootRoute: pathname === '/',
       folderId: pathArr.includes('folder') ? pathArr[2] : null,
       noteId: pathArr.includes('note') ? pathArr[2] : null,
     };
@@ -30,5 +29,5 @@ export function useNoteInitializer() {
     }
   }, [userId, fetchFolders]);
 
-  return { folderId, isFolderRoute, isRootRoute, noteId, userId };
+  return { folderId, noteId, userId };
 }

@@ -26,10 +26,13 @@ const NoteClient = () => {
         </div>
 
         <Taskbar loading={creatingFolder}>
-          <FolderPlusIcon
+          <div
             onClick={handleCreateFolder}
             className="ml-1 icon--action"
-          />
+            title="Create a folder"
+          >
+            <FolderPlusIcon />
+          </div>
         </Taskbar>
       </div>
 

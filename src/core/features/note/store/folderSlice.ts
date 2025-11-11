@@ -7,7 +7,6 @@ import {
   postFolder,
 } from '@/core/features/note/actions';
 import { NoteSlice } from '@/core/features/note/store/noteSlice';
-import { RouteSlice } from '@/core/features/note/store/routeSlice';
 import { FolderItem } from '@/core/features/note/types';
 import { ServerActionResult } from '@/core/types';
 import { FolderColorKey } from '@/core/features/note/maps';
@@ -36,7 +35,7 @@ export interface FolderSlice {
 }
 
 export const folderSlice: StateCreator<
-  FolderSlice & NoteSlice & RouteSlice,
+  FolderSlice & NoteSlice,
   [],
   [],
   FolderSlice

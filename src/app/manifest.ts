@@ -1,15 +1,15 @@
 import { MetadataRoute } from 'next';
-import { APP_NAME } from '@/core/constants';
+import { APP_DESCRIPTION, APP_NAME } from '@/core/constants';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: APP_NAME,
     short_name: APP_NAME,
-    description: 'Personal Workspace',
+    description: APP_DESCRIPTION,
     start_url: '/',
     display: 'standalone',
-    background_color: '#38363A',
-    theme_color: '#38363A',
+    background_color: '#2e3138',
+    theme_color: '#2e3138',
     icons: [
       {
         src: '/images/icons/favicon.ico',

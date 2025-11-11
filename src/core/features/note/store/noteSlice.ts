@@ -10,7 +10,6 @@ import {
   postNote,
 } from '@/core/features/note/actions';
 import { FolderSlice } from '@/core/features/note/store/folderSlice';
-import { RouteSlice } from '@/core/features/note/store/routeSlice';
 import { NoteItem } from '@/core/features/note/types';
 import { ServerActionResult } from '@/core/types';
 
@@ -61,7 +60,7 @@ export interface NoteSlice {
 }
 
 export const noteSlice: StateCreator<
-  FolderSlice & NoteSlice & RouteSlice,
+  FolderSlice & NoteSlice,
   [],
   [],
   NoteSlice

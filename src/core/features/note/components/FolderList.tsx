@@ -9,6 +9,7 @@ import FolderItem from '@/core/features/note/components/FolderItem';
 import { useNoteStore } from '@/core/features/note/store';
 import { Theme } from '@/core/types';
 import { cn } from '@/core/utils';
+import { useMemo } from 'react';
 
 export interface FolderListProps {
   small?: boolean;
@@ -20,6 +21,10 @@ const FolderList = ({ small }: FolderListProps) => {
 
   const folders = useNoteStore((state) => state.folders);
   const fetchingFolders = useNoteStore((state) => state.fetchingFolders);
+
+  const sortedFolders = useMemo(() => {
+    return [...folders].sort((a, b) => a.title.localeCompare(b.title));
+  }, [folders]);
 
   return (
     <div className="fade">
@@ -42,7 +47,7 @@ const FolderList = ({ small }: FolderListProps) => {
             </div>
           ) : null}
 
-          {folders.map((data) => (
+          {sortedFolders.map((data) => (
             <FolderItem
               {...data}
               small={small}

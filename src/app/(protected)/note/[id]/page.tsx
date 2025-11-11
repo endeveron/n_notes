@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
+import { Lock, LockOpen } from 'lucide-react';
 
 import { ClearIcon } from '@/core/components/icons/ClearIcon';
 import { EditIcon } from '@/core/components/icons/EditIcon';
@@ -148,7 +149,12 @@ export default function NotePage() {
       return;
     }
 
-    toast('Note content is encrypted and safe');
+    toast(
+      <div className="flex items-center gap-2">
+        <Lock className="scale-80 text-success" />
+        <div>Note content is encrypted and safe</div>
+      </div>
+    );
   };
 
   const handleDecryptNoteInDB = async () => {
@@ -165,7 +171,12 @@ export default function NotePage() {
       return;
     }
 
-    toast('Note content is decrypted and may be exposed');
+    toast(
+      <div className="flex items-center gap-2">
+        <LockOpen className="scale-80 text-warning" />
+        <div>Note content is decrypted and may be exposed</div>
+      </div>
+    );
   };
 
   const handleSaveNote = async () => {
@@ -369,7 +380,7 @@ export default function NotePage() {
 
           {note && !editMode ? (
             <div className="flex items-center gap-1">
-              <div className="text-accent">
+              <div className="text-icon">
                 {contentIsEncrypted ? <LockIcon /> : <FileIcon />}
               </div>
               <div className="py-4 text-xl font-bold cursor-default">
@@ -411,7 +422,7 @@ export default function NotePage() {
               {!contentIsEncrypted && !contentIsEmpty && !contentIsDecrypted ? (
                 <div
                   onClick={handleEncryptNote}
-                  className="ml-1 text-accent cursor-pointer"
+                  className="ml-1 text-icon cursor-pointer"
                   title="Encrypt note content"
                 >
                   <LockIcon />
@@ -482,7 +493,7 @@ export default function NotePage() {
                 </form>
               </Form>
             ) : contentIsEmpty ? (
-              <div className="my-8 flex-center">
+              <div className="my-6 flex-center">
                 <Button
                   onClick={handlePasteContent}
                   variant="outline"

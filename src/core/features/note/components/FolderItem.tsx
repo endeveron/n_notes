@@ -7,6 +7,8 @@ import { folderColorMap } from '@/core/features/note/maps';
 import { FolderItem as TFolderItem } from '@/core/features/note/types';
 import { Theme } from '@/core/types';
 import { cn } from '@/core/utils';
+import { ReactNode, useEffect, useState } from 'react';
+import { Brain, Ellipsis, Lightbulb, Terminal } from 'lucide-react';
 
 interface FolderListProps extends TFolderItem {
   theme: Theme;
@@ -23,6 +25,7 @@ const FolderItem = ({
   theme,
 }: FolderListProps) => {
   const router = useRouter();
+  const [folderIconEl, setFolderIconEl] = useState<ReactNode | null>(null);
 
   const colorGroup = folderColorMap.get(color)!;
   const backgroundColor = colorGroup[theme];
@@ -30,6 +33,28 @@ const FolderItem = ({
   const handleClick = () => {
     router.push(`/folder/${id}`);
   };
+
+  // Init folder icon
+  useEffect(() => {
+    (async () => {
+      switch (title) {
+        case 'Dev':
+          setFolderIconEl(<Terminal size={16} />);
+          break;
+        case 'Ideas':
+          setFolderIconEl(<Lightbulb size={16} />);
+          break;
+        case 'Mind':
+          setFolderIconEl(<Brain size={16} />);
+          break;
+        case 'Misc':
+          setFolderIconEl(<Ellipsis size={16} />);
+          break;
+        default:
+          setFolderIconEl(null);
+      }
+    })();
+  }, [title]);
 
   return (
     <div
@@ -48,9 +73,14 @@ const FolderItem = ({
         ></div>
       ) : (
         <div
-          className="mb-2 relative overflow-hidden h-10 rounded-sm trans-c"
+          className="relative mb-2 overflow-hidden h-10 rounded-sm trans-c"
           style={{ backgroundColor }}
         >
+          {folderIconEl && (
+            <div className="fade absolute left-2.5 bottom-2.5 text-white dark:text-white/80">
+              {folderIconEl}
+            </div>
+          )}
           <div className="absolute top-0 right-0 opacity-20 dark:opacity-30 trans-o">
             <FolderElement />
           </div>

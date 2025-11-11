@@ -16,6 +16,8 @@ const NODEMAILER_USER = process.env.NODEMAILER_USER as string;
 const NODEMAILER_PASSWORD = process.env.NODEMAILER_PASSWORD as string;
 
 const APP_NAME = 'Private Notes';
+const APP_DESCRIPTION =
+  'A secure, minimalist note-taking app designed to keep your thoughts safe and accessible only to you.';
 
 // Routes
 const SIGNIN_REDIRECT = '/signin';
@@ -35,6 +37,7 @@ export {
   NODEMAILER_USER,
   NODEMAILER_PASSWORD,
   APP_NAME,
+  APP_DESCRIPTION,
   SIGNIN_REDIRECT,
   SIGNUP_REDIRECT,
   DEFAULT_REDIRECT,

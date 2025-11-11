@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Mulish, PT_Serif } from 'next/font/google';
 
 import { Toaster } from '@/core/components/ui/Sonner';
-import { APP_NAME, BASE_URL } from '@/core/constants';
+import { APP_DESCRIPTION, APP_NAME, BASE_URL } from '@/core/constants';
 import { Providers } from '@/core/context/providers';
 
 import '@/core/globals.css';
@@ -24,14 +24,14 @@ const ptSerif = PT_Serif({
 });
 
 export const metadata: Metadata = {
-  title: `${APP_NAME}`,
+  title: APP_NAME,
   applicationName: APP_NAME,
-  description: `Personal Workspace`,
+  description: APP_DESCRIPTION,
   creator: 'Endeveron',
   metadataBase: new URL(BASE_URL),
   openGraph: {
-    title: `${APP_NAME}`,
-    description: `Personal Workspace`,
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
     siteName: APP_NAME,
     type: 'website',
     url: '/',
