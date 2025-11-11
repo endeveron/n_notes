@@ -48,7 +48,7 @@ export const DrawerContent: React.FC<DrawerContentProps> = ({
   return (
     <div
       className={cn(
-        'fixed bottom-0 left-1/2 transform -translate-x-1/2 z-100 bg-area rounded-t-3xl p-6 flex flex-col',
+        'fixed bottom-0 left-1/2 transform -translate-x-1/2 z-100 bg-background/80 rounded-t-3xl p-6 flex flex-col',
         'max-w-2xl w-full mx-auto',
         'transition-transform duration-300 ease-in-out',
         isClosing

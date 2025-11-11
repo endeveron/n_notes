@@ -43,7 +43,7 @@
 
   --error: hsl(var(--error-hue), 85%, 50%);
 
-  --area: hsl(var(--hue), 10%, 95%); /* auth, sidebar */
+  --area: hsl(var(--hue), 10%, 95%); /* auth */
   --muted: hsl(var(--hue), 10%, 60%);
   --border: hsl(var(--hue), 10%, 70%);
   --icon: hsl(var(--accent-hue), 80%, 50%);
@@ -85,7 +85,7 @@
 
   --error: hsl(var(--error-hue), 85%, 60%);
 
-  --area: hsl(var(--hue), 10%, 10%);
+  --area: hsl(var(--hue), 10%, 15%);
   --muted: hsl(var(--hue), 10%, 60%);
   --border: hsl(var(--hue), 10%, 35%);
   --icon: hsl(var(--accent-hue), 85%, 65%);
