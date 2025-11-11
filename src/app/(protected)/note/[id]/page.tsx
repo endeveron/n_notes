@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import 'highlight.js/styles/github-dark.css';
 import { Lock, LockOpen } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
@@ -50,7 +50,6 @@ import { cn } from '@/core/utils';
 
 export default function NotePage() {
   const router = useRouter();
-  const pathname = usePathname();
   const { noteId, userId } = useNoteInitializer();
   const { paste } = useClipboard();
 
@@ -63,7 +62,6 @@ export default function NotePage() {
   const updateNote = useNoteStore((s) => s.updateNote);
   const updatingNote = useNoteStore((s) => s.updatingNote);
 
-  const [showContent, setShowContent] = useState(false);
   const [note, setNote] = useState<NoteItem | null>(null);
   const [removeNotePrompt, setRemoveNotePrompt] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -317,9 +315,6 @@ export default function NotePage() {
   useEffect(() => {
     if (!folderNotes.length) return;
 
-    // Only run this effect if we're actually on a note page
-    if (!pathname.includes('/note/')) return;
-
     (async () => {
       const index = folderNotes.findIndex((n) => n.id === noteId);
 
@@ -329,7 +324,6 @@ export default function NotePage() {
       }
 
       setNote(folderNotes[index]);
-      setShowContent(true);
     })();
 
     // Don't include `note` in the deps array - when update note state
@@ -352,12 +346,7 @@ export default function NotePage() {
   }, [contentForm, note, titleForm]);
 
   return (
-    <div
-      className={cn(
-        'fade size-full flex flex-col opacity-0 px-4 trans-o',
-        showContent && 'opacity-100'
-      )}
-    >
+    <div className="fade size-full flex flex-col px-4">
       <div className="sticky z-10 top-0 min-h-20 flex items-center gap-4 bg-background trans-c">
         <div className="flex flex-1 items-center gap-4">
           <NavBack />

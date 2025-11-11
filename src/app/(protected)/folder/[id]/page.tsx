@@ -72,7 +72,7 @@ export default function FolderPage() {
   const updateFolder = useNoteStore((s) => s.updateFolder);
 
   const [folderData, setFolderData] = useState<FolderItem | null>(null);
-  const [showContent, setShowContent] = useState(false);
+  // const [showContent, setShowContent] = useState(false);
   const [removeFolderPrompt, setRemoveFolderPrompt] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -154,8 +154,8 @@ export default function FolderPage() {
       // Fetch folder notes
       const success = await fetchFolderNotes({ folderId, userId });
 
-      if (success) {
-        setShowContent(true);
+      if (!success) {
+        toast('Unable to retrieve notes');
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -172,12 +172,7 @@ export default function FolderPage() {
   }, [folderData, form]);
 
   return (
-    <div
-      className={cn(
-        'fade size-full flex flex-col opacity-0 px-4 trans-o',
-        showContent && 'opacity-100'
-      )}
-    >
+    <div className="fade size-full flex flex-col px-4">
       <div className="sticky z-10 top-0 min-h-20 flex items-center gap-4 bg-background trans-c">
         <div className="flex flex-1 items-center gap-4">
           <NavBack route="/" />

@@ -180,7 +180,11 @@ export const noteSlice: StateCreator<
     set({ removingNote: true });
     const res = await deleteNote({ noteId });
     if (res.success) {
-      get().fetchFolderNotes({ folderId, userId }); // Refresh folder notes
+      // Remove the note from local state
+      const updFolderNotes = [...get().folderNotes].filter(
+        (n) => n.id !== noteId
+      );
+      set({ folderNotes: updFolderNotes });
     }
     set({ removingNote: false });
     return res;
