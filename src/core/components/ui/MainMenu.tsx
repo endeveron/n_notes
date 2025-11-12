@@ -46,9 +46,9 @@ const MainMenu = ({ className }: MainMenuProps) => {
 
   const themeIcon =
     theme === 'light' ? (
-      <MoonIcon className="icon--menu" />
+      <MoonIcon className="text-icon" />
     ) : (
-      <LightbulbIcon className="icon--menu" />
+      <LightbulbIcon className="text-icon" />
     );
 
   return (
@@ -72,7 +72,7 @@ const MainMenu = ({ className }: MainMenuProps) => {
           <DropdownMenuSeparator />
 
           {/* <DropdownMenuItem onClick={handleEditQuotes}>
-            <EditIcon className="icon--menu" />
+            <EditIcon className="text-icon" />
             Edit quotes
           </DropdownMenuItem> */}
 
@@ -82,7 +82,7 @@ const MainMenu = ({ className }: MainMenuProps) => {
           </DropdownMenuItem>
 
           <DropdownMenuItem onClick={handleSignOut}>
-            <SignOutIcon className="icon--menu flip-x" />
+            <SignOutIcon className="text-icon flip-x" />
             Sign out
           </DropdownMenuItem>
         </DropdownMenuContent>

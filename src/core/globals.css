@@ -209,7 +209,6 @@
 
 @layer layout {
   :root {
-    /* --sidebar-w: 56px; */
     --gap: 16px;
     --gap-1-4: 4px;
     --gap-1-2: 8px;
@@ -218,26 +217,6 @@
 
   .layout {
     @apply relative flex h-full;
-  }
-
-  .sidebar {
-    width: 0;
-  }
-
-  .column-stack {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap);
-  }
-
-  .main-menu--fixed {
-    @apply fixed top-7 left-4 z-10;
-  }
-
-  @media only screen and (max-height: 767px) {
-    .main-menu--fixed {
-      @apply top-5;
-    }
   }
 }
 
@@ -280,14 +259,6 @@
     @apply rounded-sm bg-card shadow-xs transition-colors duration-300;
   }
 
-  .space {
-    flex-grow: 1;
-  }
-
-  .clickable {
-    @apply cursor-pointer;
-  }
-
   .inactive {
     @apply pointer-events-none! text-muted!;
   }
@@ -298,10 +269,6 @@
 
   .form-loading {
     transition: opacity 0.2s ease;
-  }
-
-  .icon--menu {
-    @apply text-icon;
   }
 
   .icon--action {
