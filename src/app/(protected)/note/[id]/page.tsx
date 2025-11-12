@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import 'highlight.js/styles/github-dark.css';
 import { Lock, LockOpen } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
@@ -50,6 +50,7 @@ import { cn } from '@/core/utils';
 
 export default function NotePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { noteId, userId } = useNoteInitializer();
   const { paste } = useClipboard();
 
@@ -65,6 +66,11 @@ export default function NotePage() {
   const [note, setNote] = useState<NoteItem | null>(null);
   const [removeNotePrompt, setRemoveNotePrompt] = useState(false);
   const [editMode, setEditMode] = useState(false);
+
+  const statusFromSearchParams = searchParams.get('status');
+  const isNewNote = statusFromSearchParams === 'new';
+  const modeFromSearchParams = searchParams.get('mode');
+  const enableEditMode = modeFromSearchParams === 'edit';
 
   const titleForm = useForm<UpdateNoteTitleSchema>({
     resolver: zodResolver(updateNoteTitleSchema),
@@ -150,7 +156,7 @@ export default function NotePage() {
     }
 
     toast(
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <Lock className="scale-80 text-success" />
         <div>Note content is encrypted and safe</div>
       </div>
@@ -172,7 +178,7 @@ export default function NotePage() {
     }
 
     toast(
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <LockOpen className="scale-80 text-warning" />
         <div>Note content is decrypted and may be exposed</div>
       </div>
@@ -312,6 +318,7 @@ export default function NotePage() {
     }
   }, [titleIsDirty, contentIsDirty]);
 
+  // Initialization: retrieve a note from the folderNotes array
   useEffect(() => {
     if (!folderNotes.length) return;
 
@@ -332,7 +339,7 @@ export default function NotePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folderNotes, noteId]);
 
-  // Reset forms
+  // Reset titleForm and contentForm
   useEffect(() => {
     if (!note) return;
 
@@ -345,6 +352,25 @@ export default function NotePage() {
     });
   }, [contentForm, note, titleForm]);
 
+  // Enable edit mode for a new note
+  useEffect(() => {
+    if (enableEditMode || isNewNote) {
+      setEditMode(true);
+    }
+  }, [enableEditMode, isNewNote]);
+
+  const pasteContentBtn = !contentIsDirty ? (
+    <div className="fade my-6 flex-center">
+      <Button
+        onClick={handlePasteContent}
+        variant="outline"
+        className="fade px-6"
+      >
+        Paste content from clipboard
+      </Button>
+    </div>
+  ) : null;
+
   return (
     <div className="fade size-full flex flex-col px-4">
       <div className="sticky z-10 top-0 min-h-20 flex items-center gap-4 bg-background trans-c">
@@ -353,7 +379,7 @@ export default function NotePage() {
 
           {note && editMode ? (
             <Form {...titleForm}>
-              <form className={cn('w-full', updatingNote && 'inactive')}>
+              <form className={cn('fade w-full', updatingNote && 'inactive')}>
                 <FormField
                   control={titleForm.control}
                   name="title"
@@ -371,7 +397,7 @@ export default function NotePage() {
           ) : null}
 
           {note && !editMode ? (
-            <div className="flex items-center gap-1">
+            <div className="fade flex items-center gap-1">
               <div className="text-icon">
                 {contentIsEncrypted ? <LockIcon /> : <FileIcon />}
               </div>
@@ -459,43 +485,37 @@ export default function NotePage() {
         {note ? (
           <>
             {contentIsEncrypted ? (
-              <div className="size-full flex-center select-none">
-                <div className="flex items-center gap-2">
-                  <div className="scale-75">
-                    <LoadingIcon />
-                  </div>
-                  <div className="text-muted">Decrypting content...</div>
+              <div className="fade my-6 flex-center items-center gap-3 select-none">
+                <div className="scale-75">
+                  <LoadingIcon />
                 </div>
+                <div className="text-muted">Decrypting content...</div>
               </div>
             ) : editMode ? (
-              <Form {...contentForm}>
-                <form className={cn('w-full', updatingNote && 'inactive')}>
-                  <FormField
-                    control={contentForm.control}
-                    name="content"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <FormTextarea className="" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </form>
-              </Form>
-            ) : contentIsEmpty ? (
-              <div className="my-6 flex-center">
-                <Button
-                  onClick={handlePasteContent}
-                  variant="outline"
-                  className="fade px-6"
-                >
-                  Paste content from clipboard
-                </Button>
+              <div className="fade">
+                <Form {...contentForm}>
+                  <form className={cn('w-full', updatingNote && 'inactive')}>
+                    <FormField
+                      control={contentForm.control}
+                      name="content"
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <FormTextarea className="" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </form>
+                </Form>
+
+                {isNewNote ? pasteContentBtn : null}
               </div>
+            ) : contentIsEmpty ? (
+              pasteContentBtn
             ) : (
-              <article className="prose prose-lg dark:prose-invert max-w-none cursor-default">
+              <article className="fade prose prose-lg dark:prose-invert max-w-none cursor-default">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeHighlight]}

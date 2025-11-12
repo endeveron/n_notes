@@ -95,6 +95,11 @@ export default function FolderPage() {
     const res = await createNote({ folderId, userId });
     if (!res.success) {
       toast(res.error.message ?? 'Unable to create note');
+      return;
+    }
+
+    if (res.data?.id) {
+      router.push(`/note/${res.data.id}?status=new`);
     }
   };
 
@@ -142,11 +147,11 @@ export default function FolderPage() {
     setIsDialogOpen(false);
   };
 
+  // Initialization: retrieve folder data from the folders array
   useEffect(() => {
     if (!folderId || !userId) return;
 
     (async () => {
-      // Retrieve folder data from the folders array
       const index = folders.findIndex((f) => f.id === folderId);
       if (index === -1) return;
       setFolderData(folders[index]);
@@ -170,6 +175,18 @@ export default function FolderPage() {
       color: folderData.color,
     });
   }, [folderData, form]);
+
+  const createNoteBtn = (
+    <div className="my-6 flex-center">
+      <Button
+        onClick={handleCreateNote}
+        variant="outline"
+        className="fade px-6"
+      >
+        Create a note
+      </Button>
+    </div>
+  );
 
   return (
     <div className="fade size-full flex flex-col px-4">
@@ -204,7 +221,7 @@ export default function FolderPage() {
             <>
               <div
                 onClick={handleCreateNote}
-                className="ml-1 icon--action"
+                className="ml-1 text-accent cursor-pointer trans-c"
                 title="Create a note"
               >
                 <FilePlusIcon />
@@ -321,8 +338,10 @@ export default function FolderPage() {
           <div className="mt-20 flex-center">
             <Loading delay={2000} />
           </div>
-        ) : (
+        ) : folderNotes.length ? (
           <NoteList notes={folderNotes} />
+        ) : (
+          createNoteBtn
         )}
       </div>
       <div className="flex-center">

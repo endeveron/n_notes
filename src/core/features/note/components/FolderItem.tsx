@@ -63,7 +63,7 @@ const FolderItem = ({
         'cursor-pointer',
         small
           ? 'flex items-center hover:bg-card rounded-full pl-2 pr-2.5 trans-c'
-          : 'w-16'
+          : 'w-15.75'
       )}
     >
       {small ? (

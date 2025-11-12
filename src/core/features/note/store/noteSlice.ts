@@ -12,6 +12,7 @@ import {
 import { FolderSlice } from '@/core/features/note/store/folderSlice';
 import { NoteItem } from '@/core/features/note/types';
 import { ServerActionResult } from '@/core/types';
+import { updateFolderNotes } from '@/core/utils/note';
 
 export interface NoteSlice {
   creatingNote: boolean;
@@ -23,7 +24,7 @@ export interface NoteSlice {
   createNote: (args: {
     folderId: string;
     userId: string;
-  }) => Promise<ServerActionResult<{ id: string }>>;
+  }) => Promise<ServerActionResult<NoteItem>>;
   decryptNote: (args: {
     folderId: string;
     noteId: string;
@@ -83,7 +84,8 @@ export const noteSlice: StateCreator<
     set({ creatingNote: true });
     const res = await postNote({ folderId, userId });
     if (res.success && res.data?.id) {
-      await get().fetchFolderNotes({ folderId, userId }); // Refresh notes
+      // Add the note to the folderNotes array in the local state
+      set({ folderNotes: [...get().folderNotes, res.data] });
     }
     set({ creatingNote: false });
     return res;
@@ -102,7 +104,7 @@ export const noteSlice: StateCreator<
 
     set({ updatingNote: true });
     const res = await getNoteDecrypt({ noteId });
-    // !! Do not refresh folder notes
+    // No need to refresh folder notes
     set({ updatingNote: false });
     return res;
   },
@@ -120,8 +122,12 @@ export const noteSlice: StateCreator<
 
     set({ updatingNote: true });
     const res = await patchNoteDecrypt({ noteId });
-    if (res.success) {
-      get().fetchFolderNotes({ folderId, userId }); // Refresh folder notes
+    if (res.success && res.data?.content) {
+      // Update the note in the folderNotes array
+      updateFolderNotes({
+        folderNotes: get().folderNotes,
+        note: res.data,
+      });
     }
     set({ updatingNote: false });
     return res;
@@ -143,8 +149,12 @@ export const noteSlice: StateCreator<
 
     set({ updatingNote: true });
     const res = await patchNoteEncrypt({ noteId, content, title });
-    if (res.success) {
-      get().fetchFolderNotes({ folderId, userId }); // Refresh folder notes
+    if (res.success && res.data?.content) {
+      // Update the note in the folderNotes array
+      updateFolderNotes({
+        folderNotes: get().folderNotes,
+        note: res.data,
+      });
     }
     set({ updatingNote: false });
     return res;
@@ -180,7 +190,7 @@ export const noteSlice: StateCreator<
     set({ removingNote: true });
     const res = await deleteNote({ noteId });
     if (res.success) {
-      // Remove the note from local state
+      // Remove the note from the folderNotes array
       const updFolderNotes = [...get().folderNotes].filter(
         (n) => n.id !== noteId
       );
@@ -206,8 +216,12 @@ export const noteSlice: StateCreator<
 
     set({ updatingNote: true });
     const res = await patchNote({ noteId, content, title });
-    if (res.success) {
-      get().fetchFolderNotes({ folderId, userId }); // Refresh folder notes
+    if (res.success && res.data?.id) {
+      // Update the note in the folderNotes array
+      updateFolderNotes({
+        folderNotes: get().folderNotes,
+        note: res.data,
+      });
     }
     set({ updatingNote: false });
     return res;

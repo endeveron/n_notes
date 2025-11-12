@@ -22,9 +22,9 @@ const TaskbarPrompt = ({
           <Loading />
         </div>
       ) : (
-        <div className="flex items-center gap-2">
-          <AcceptIcon onClick={onAccept} className="ml-1 icon--action" />
-          <DeclineIcon onClick={onDecline} className="ml-1 icon--action" />
+        <div className="flex items-center gap-4 ml-1">
+          <AcceptIcon onClick={onAccept} className="icon--action" />
+          <DeclineIcon onClick={onDecline} className="icon--action" />
         </div>
       )}
     </div>

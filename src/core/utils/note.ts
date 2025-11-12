@@ -9,3 +9,16 @@ export const parseNoteItem = (noteDoc: NoteDB): NoteItem => ({
   timestamp: noteDoc.timestamp,
   title: noteDoc.title,
 });
+
+export const updateFolderNotes = ({
+  folderNotes,
+  note,
+}: {
+  folderNotes: NoteItem[];
+  note: NoteItem;
+}) => {
+  const updFolderNotes = [...folderNotes];
+  const index = updFolderNotes.findIndex((n) => n.id === note.id);
+  updFolderNotes[index] = note;
+  return updFolderNotes;
+};

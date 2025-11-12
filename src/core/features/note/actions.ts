@@ -187,7 +187,7 @@ export const patchNote = async ({
   noteId: string;
   content?: string;
   title?: string;
-}): Promise<ServerActionResult> => {
+}): Promise<ServerActionResult<NoteItem>> => {
   if (!noteId || (!content && !title)) {
     return handleActionError('patchNote: Missing required data');
   }
@@ -220,6 +220,7 @@ export const patchNote = async ({
 
     return {
       success: true,
+      data: parseNoteItem(noteDoc),
     };
   } catch (err: unknown) {
     return handleActionError('patchNote: Unable to update note', err);
@@ -274,7 +275,7 @@ export const patchNoteDecrypt = async ({
   noteId,
 }: {
   noteId: string;
-}): Promise<ServerActionResult<string>> => {
+}): Promise<ServerActionResult<NoteItem>> => {
   if (!noteId) {
     return handleActionError('patchNoteDecrypt: Missing note id');
   }
@@ -309,6 +310,7 @@ export const patchNoteDecrypt = async ({
 
     return {
       success: true,
+      data: parseNoteItem(noteDoc),
     };
   } catch (err: unknown) {
     return handleActionError('patchNoteDecrypt: Unable to decrypt note', err);
@@ -323,7 +325,7 @@ export const patchNoteEncrypt = async ({
   noteId: string;
   content: string;
   title?: string;
-}): Promise<ServerActionResult> => {
+}): Promise<ServerActionResult<NoteItem>> => {
   if (!noteId || !content) {
     return handleActionError('patchNoteEncrypt: Missing required data');
   }
@@ -354,6 +356,7 @@ export const patchNoteEncrypt = async ({
 
     return {
       success: true,
+      data: parseNoteItem(noteDoc),
     };
   } catch (err: unknown) {
     return handleActionError('patchNoteEncrypt: Unable to encrypt note', err);
@@ -366,7 +369,7 @@ export const postNote = async ({
 }: {
   folderId: string;
   userId: string;
-}): Promise<ServerActionResult<{ id: string }>> => {
+}): Promise<ServerActionResult<NoteItem>> => {
   if (!folderId || !userId) {
     return handleActionError('postNote: Missing required data');
   }
@@ -374,20 +377,28 @@ export const postNote = async ({
   try {
     await mongoDB.connect();
 
-    const note = await NoteModel.create({
+    const initialData = {
       content: '',
+      encrypted: false,
       folderId,
       tags: [],
       timestamp: Date.now(),
       title: 'Untitled',
+    };
+
+    const note = await NoteModel.create({
+      ...initialData,
       userId,
     });
 
+    const noteItem = {
+      id: note._id.toString(),
+      ...initialData,
+    };
+
     return {
       success: true,
-      data: {
-        id: note._id.toString(),
-      },
+      data: noteItem,
     };
   } catch (err: unknown) {
     return handleActionError('postNote: Unable to create note', err);
