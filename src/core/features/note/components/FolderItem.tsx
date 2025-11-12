@@ -7,8 +7,15 @@ import { folderColorMap } from '@/core/features/note/maps';
 import { FolderItem as TFolderItem } from '@/core/features/note/types';
 import { Theme } from '@/core/types';
 import { cn } from '@/core/utils';
+import {
+  Bookmark,
+  Brain,
+  Ellipsis,
+  Heart,
+  Lightbulb,
+  Terminal,
+} from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
-import { Brain, Ellipsis, Lightbulb, Terminal } from 'lucide-react';
 
 interface FolderListProps extends TFolderItem {
   theme: Theme;
@@ -27,7 +34,10 @@ const FolderItem = ({
   const router = useRouter();
   const [folderIconEl, setFolderIconEl] = useState<ReactNode | null>(null);
 
-  const colorGroup = folderColorMap.get(color)!;
+  const colorGroup = folderColorMap.get(color) || {
+    light: '#99a1af',
+    dark: '#4a5565',
+  };
   const backgroundColor = colorGroup[theme];
 
   const handleClick = () => {
@@ -38,6 +48,12 @@ const FolderItem = ({
   useEffect(() => {
     (async () => {
       switch (title) {
+        case 'Alpha':
+          setFolderIconEl(<Heart size={16} />);
+          break;
+        case 'Books':
+          setFolderIconEl(<Bookmark size={16} />);
+          break;
         case 'Dev':
           setFolderIconEl(<Terminal size={16} />);
           break;
