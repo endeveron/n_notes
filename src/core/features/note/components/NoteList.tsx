@@ -2,10 +2,16 @@
 
 import { ScrollArea } from '@/core/components/ui/ScrollArea';
 import NoteItem from '@/core/features/note/components/NoteItem';
-import { NoteItem as TNoteItem } from '@/core/features/note/types';
+import { FolderItem, NoteItem as TNoteItem } from '@/core/features/note/types';
 import { cn } from '@/core/utils';
 
-const NoteList = ({ notes }: { notes: TNoteItem[] }) => {
+const NoteList = ({
+  folders,
+  notes,
+}: {
+  folders: FolderItem[];
+  notes: TNoteItem[];
+}) => {
   return (
     <div className="fade">
       <ScrollArea>
@@ -16,7 +22,7 @@ const NoteList = ({ notes }: { notes: TNoteItem[] }) => {
           )}
         >
           {notes.map((data) => (
-            <NoteItem {...data} key={data.id} />
+            <NoteItem {...data} folders={folders} key={data.id} />
           ))}
         </div>
       </ScrollArea>

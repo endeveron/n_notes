@@ -363,6 +363,43 @@ export const patchNoteEncrypt = async ({
   }
 };
 
+export const patchNoteMove = async ({
+  folderId,
+  noteId,
+}: {
+  folderId: string;
+  noteId: string;
+}): Promise<ServerActionResult> => {
+  if (!folderId || !noteId) {
+    return handleActionError('patchNoteMove: Missing required data');
+  }
+
+  try {
+    await mongoDB.connect();
+
+    const noteDoc = await NoteModel.findById(noteId);
+    if (!noteDoc) {
+      return {
+        success: false,
+        error: {
+          message: 'Not found',
+        },
+      };
+    }
+
+    // Update note document
+    noteDoc.folderId = folderId;
+    // noteDoc.timestamp = Date.now();
+    await noteDoc.save();
+
+    return {
+      success: true,
+    };
+  } catch (err: unknown) {
+    return handleActionError('patchNoteMove: Unable to move note', err);
+  }
+};
+
 export const postNote = async ({
   folderId,
   userId,

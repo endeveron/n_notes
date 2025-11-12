@@ -339,7 +339,7 @@ export default function FolderPage() {
             <Loading delay={2000} />
           </div>
         ) : folderNotes.length ? (
-          <NoteList notes={folderNotes} />
+          <NoteList folders={folders} notes={folderNotes} />
         ) : (
           createNoteBtn
         )}

@@ -10,10 +10,16 @@ import { LockIcon } from '@/core/components/icons/LockIcon';
 import { MenuIcon } from '@/core/components/icons/MenuIcon';
 import { TrashIcon } from '@/core/components/icons/TrashIcon';
 import TaskbarPrompt from '@/core/components/ui/TaskbarPrompt';
+import { MoveNoteDropdown } from '@/core/features/note/components/MoveNoteDropdown';
 import { useNoteStore } from '@/core/features/note/store';
 import { useNoteInitializer } from '@/core/features/note/store/useNoteInitializer';
-import { NoteItem as TNoteItem } from '@/core/features/note/types';
+import {
+  FolderItem,
+  TargetFolderData,
+  NoteItem as TNoteItem,
+} from '@/core/features/note/types';
 import { cn, markdownToPlainText } from '@/core/utils';
+import { AcceptIcon } from '@/core/components/icons/AcceptIcon';
 
 const NoteItem = ({
   id,
@@ -23,10 +29,15 @@ const NoteItem = ({
   folderId,
   encrypted,
   title,
-}: TNoteItem) => {
+  folders,
+}: TNoteItem & {
+  folders: FolderItem[];
+}) => {
   const router = useRouter();
   const { userId } = useNoteInitializer();
 
+  const moveNote = useNoteStore((s) => s.moveNote);
+  const movingNote = useNoteStore((s) => s.movingNote);
   const removeNote = useNoteStore((s) => s.removeNote);
   const removingNote = useNoteStore((s) => s.removingNote);
 
@@ -41,6 +52,29 @@ const NoteItem = ({
     router.push(`/note/${id}`);
   };
 
+  const handleMoveNote = async ({
+    folderId,
+    folderTitle,
+  }: TargetFolderData) => {
+    const res = await moveNote({ folderId, noteId: id });
+    toast(
+      res.success ? (
+        <div className="flex items-center gap-3">
+          <AcceptIcon className="text-success" />
+          <div>
+            Note moved to the{' '}
+            <span className="text-accent font-semibold mx-0.5">
+              {folderTitle}
+            </span>{' '}
+            folder
+          </div>
+        </div>
+      ) : (
+        'Unable to move note'
+      )
+    );
+  };
+
   const handleEditNote = () => {
     router.push(`/note/${id}?mode=edit`);
   };
@@ -50,10 +84,10 @@ const NoteItem = ({
   };
 
   const handleRemoveNoteAccept = async () => {
-    if (!folderId || !userId) return;
+    if (!userId) return;
 
     setRemoveNotePrompt(true);
-    const res = await removeNote({ folderId, noteId: id, userId });
+    const res = await removeNote({ noteId: id });
 
     if (!res.success) {
       toast(res.error.message ?? 'Unable to delete note');
@@ -83,8 +117,27 @@ const NoteItem = ({
         </div>
       ) : (
         <>
-          <EditIcon className="icon--action mr-0.5" onClick={handleEditNote} />
-          <TrashIcon className="icon--action" onClick={handleRemoveNote} />
+          <MoveNoteDropdown
+            currentFolderId={folderId}
+            folders={folders}
+            onMoveNote={handleMoveNote}
+            loading={movingNote}
+          />
+
+          <div
+            className="icon--action mr-0.5"
+            onClick={handleEditNote}
+            title="Edit note"
+          >
+            <EditIcon />
+          </div>
+          <div
+            className="icon--action"
+            onClick={handleRemoveNote}
+            title="Delete note"
+          >
+            <TrashIcon />
+          </div>
         </>
       )}
     </div>
@@ -111,6 +164,7 @@ const NoteItem = ({
       <div
         onClick={handleToggleTaskbar}
         className="w-6 min-w-6 h-6 ml-2 icon--action"
+        title={showTaskbar ? 'Collapse' : 'Show menu'}
       >
         <MenuIcon />
       </div>

@@ -43,10 +43,12 @@ import {
 } from '@/core/features/note/schemas';
 import { useNoteStore } from '@/core/features/note/store';
 import { useNoteInitializer } from '@/core/features/note/store/useNoteInitializer';
-import { NoteItem } from '@/core/features/note/types';
+import { NoteItem, TargetFolderData } from '@/core/features/note/types';
 import { useClipboard } from '@/core/hooks/useClipboard';
 import { ServerActionResult } from '@/core/types';
 import { cn } from '@/core/utils';
+import { MoveNoteDropdown } from '@/core/features/note/components/MoveNoteDropdown';
+import { AcceptIcon } from '@/core/components/icons/AcceptIcon';
 
 export default function NotePage() {
   const router = useRouter();
@@ -58,6 +60,9 @@ export default function NotePage() {
   const decryptNoteInDB = useNoteStore((s) => s.decryptNoteInDB);
   const encryptNote = useNoteStore((s) => s.encryptNote);
   const folderNotes = useNoteStore((s) => s.folderNotes);
+  const folders = useNoteStore((s) => s.folders);
+  const moveNote = useNoteStore((s) => s.moveNote);
+  const movingNote = useNoteStore((s) => s.movingNote);
   const removeNote = useNoteStore((s) => s.removeNote);
   const removingNote = useNoteStore((s) => s.removingNote);
   const updateNote = useNoteStore((s) => s.updateNote);
@@ -141,12 +146,10 @@ export default function NotePage() {
   };
 
   const handleEncryptNote = async () => {
-    if (!noteId || !folderId || !userId || contentIsEmpty) return;
+    if (!userId || !noteId || contentIsEmpty) return;
 
     const res = await encryptNote({
-      folderId,
       noteId,
-      userId,
       content,
     });
 
@@ -164,12 +167,10 @@ export default function NotePage() {
   };
 
   const handleDecryptNoteInDB = async () => {
-    if (!noteId || !folderId || !userId) return;
+    if (!userId || !noteId) return;
 
     const res = await decryptNoteInDB({
-      folderId,
       noteId,
-      userId,
     });
 
     if (!res.success) {
@@ -186,7 +187,7 @@ export default function NotePage() {
   };
 
   const handleSaveNote = async () => {
-    if (!note || !noteId || !folderId || !userId) return;
+    if (!userId || !note || !noteId || !folderId) return;
 
     const title = titleForm.getValues('title');
     const content = contentForm.getValues('content');
@@ -200,14 +201,12 @@ export default function NotePage() {
     const noteData: {
       folderId: string;
       noteId: string;
-      userId: string;
       content?: string;
       title?: string;
     } = {
       content,
       folderId,
       noteId,
-      userId,
       title,
     };
 
@@ -242,18 +241,52 @@ export default function NotePage() {
     setEditMode(false);
   };
 
+  const handleMoveNote = async ({
+    folderId,
+    folderTitle,
+  }: TargetFolderData) => {
+    if (!note) return;
+
+    const res = await moveNote({ folderId, noteId: note.id });
+
+    let toastContent = <span>Unable to move note</span>;
+
+    if (res.success) {
+      toastContent = (
+        <div className="flex items-center gap-3">
+          <AcceptIcon className="text-success" />
+          <div>
+            Note moved to the{' '}
+            <span className="text-accent font-semibold mx-0.5">
+              {folderTitle}
+            </span>{' '}
+            folder
+          </div>
+        </div>
+      );
+    }
+
+    toast(toastContent);
+
+    setNote((prev) =>
+      prev
+        ? {
+            ...prev,
+            folderId,
+          }
+        : null
+    );
+  };
+
   const handleRemoveNote = () => {
     setRemoveNotePrompt(true);
   };
 
   const handleRemoveNoteAccept = async () => {
-    if (!noteId || !userId) return;
-
-    const folderId = note?.folderId;
-    if (!folderId) return;
+    if (!userId || !noteId) return;
 
     setRemoveNotePrompt(true);
-    const res = await removeNote({ folderId, noteId, userId });
+    const res = await removeNote({ noteId });
 
     if (!res.success) {
       toast(res.error.message ?? 'Unable to delete note');
@@ -270,12 +303,10 @@ export default function NotePage() {
   };
 
   const decryptNoteContentLocally = useCallback(async () => {
-    if (!noteId || !folderId || !userId) return;
+    if (!userId || !noteId) return;
 
     const res = await decryptNote({
-      folderId,
       noteId,
-      userId,
     });
 
     if (!res.success) {
@@ -290,7 +321,7 @@ export default function NotePage() {
 
     const decryptedContent = res.data;
 
-    setTimeout(() => {
+    (async () => {
       setNote((prev) =>
         prev
           ? {
@@ -301,8 +332,8 @@ export default function NotePage() {
             }
           : null
       );
-    }, 50);
-  }, [decryptNote, folderId, noteId, userId]);
+    })();
+  }, [decryptNote, noteId, userId]);
 
   // Auto-decrypt content
   useEffect(() => {
@@ -458,6 +489,17 @@ export default function NotePage() {
                   </div>
                 )}
               </div>
+
+              {note && !editMode ? (
+                <div className="ml-2">
+                  <MoveNoteDropdown
+                    currentFolderId={note.folderId}
+                    folders={folders}
+                    onMoveNote={handleMoveNote}
+                    loading={movingNote}
+                  />
+                </div>
+              ) : null}
 
               {content ? (
                 <div

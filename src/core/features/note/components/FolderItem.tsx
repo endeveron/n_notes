@@ -10,9 +10,9 @@ import { cn } from '@/core/utils';
 import {
   Bookmark,
   Brain,
-  Ellipsis,
-  Heart,
   Lightbulb,
+  Shapes,
+  Sparkles,
   Terminal,
 } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
@@ -48,8 +48,8 @@ const FolderItem = ({
   useEffect(() => {
     (async () => {
       switch (title) {
-        case 'Alpha':
-          setFolderIconEl(<Heart size={16} />);
+        case 'AI':
+          setFolderIconEl(<Sparkles size={16} />);
           break;
         case 'Books':
           setFolderIconEl(<Bookmark size={16} />);
@@ -64,7 +64,7 @@ const FolderItem = ({
           setFolderIconEl(<Brain size={16} />);
           break;
         case 'Misc':
-          setFolderIconEl(<Ellipsis size={16} />);
+          setFolderIconEl(<Shapes size={16} />);
           break;
         default:
           setFolderIconEl(null);

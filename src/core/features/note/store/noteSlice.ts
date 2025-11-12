@@ -7,6 +7,7 @@ import {
   patchNote,
   patchNoteDecrypt,
   patchNoteEncrypt,
+  patchNoteMove,
   postNote,
 } from '@/core/features/note/actions';
 import { FolderSlice } from '@/core/features/note/store/folderSlice';
@@ -18,6 +19,7 @@ export interface NoteSlice {
   creatingNote: boolean;
   fetchingFolderNotes: boolean;
   folderNotes: NoteItem[];
+  movingNote: boolean;
   notes: NoteItem[];
   removingNote: boolean;
   updatingNote: boolean;
@@ -26,19 +28,11 @@ export interface NoteSlice {
     userId: string;
   }) => Promise<ServerActionResult<NoteItem>>;
   decryptNote: (args: {
-    folderId: string;
     noteId: string;
-    userId: string;
   }) => Promise<ServerActionResult<string>>;
-  decryptNoteInDB: (args: {
-    folderId: string;
-    noteId: string;
-    userId: string;
-  }) => Promise<ServerActionResult>;
+  decryptNoteInDB: (args: { noteId: string }) => Promise<ServerActionResult>;
   encryptNote: (args: {
-    folderId: string;
     noteId: string;
-    userId: string;
     content: string;
     title?: string;
   }) => Promise<ServerActionResult>;
@@ -46,15 +40,13 @@ export interface NoteSlice {
     folderId: string;
     userId: string;
   }) => Promise<boolean>;
-  removeNote: (args: {
-    folderId: string;
+  moveNote: (args: {
     noteId: string;
-    userId: string;
+    folderId: string;
   }) => Promise<ServerActionResult>;
+  removeNote: (args: { noteId: string }) => Promise<ServerActionResult>;
   updateNote: (args: {
-    folderId: string;
     noteId: string;
-    userId: string;
     content?: string;
     title?: string;
   }) => Promise<ServerActionResult>;
@@ -69,6 +61,7 @@ export const noteSlice: StateCreator<
   creatingNote: false,
   fetchingFolderNotes: false,
   folderNotes: [],
+  movingNote: false,
   notes: [],
   removingNote: false,
   updatingNote: false,
@@ -91,13 +84,7 @@ export const noteSlice: StateCreator<
     return res;
   },
 
-  decryptNote: async ({ folderId, noteId, userId }) => {
-    if (!userId) {
-      return { success: false, error: { message: 'Unauthorized' } };
-    }
-    if (!folderId) {
-      return { success: false, error: { message: 'Missing folder id' } };
-    }
+  decryptNote: async ({ noteId }) => {
     if (!noteId) {
       return { success: false, error: { message: 'Missing note id' } };
     }
@@ -109,13 +96,7 @@ export const noteSlice: StateCreator<
     return res;
   },
 
-  decryptNoteInDB: async ({ folderId, noteId, userId }) => {
-    if (!userId) {
-      return { success: false, error: { message: 'Unauthorized' } };
-    }
-    if (!folderId) {
-      return { success: false, error: { message: 'Missing folder id' } };
-    }
+  decryptNoteInDB: async ({ noteId }) => {
     if (!noteId) {
       return { success: false, error: { message: 'Missing note id' } };
     }
@@ -133,13 +114,7 @@ export const noteSlice: StateCreator<
     return res;
   },
 
-  encryptNote: async ({ folderId, noteId, userId, content, title }) => {
-    if (!userId) {
-      return { success: false, error: { message: 'Unauthorized' } };
-    }
-    if (!folderId) {
-      return { success: false, error: { message: 'Missing folder id' } };
-    }
+  encryptNote: async ({ noteId, content, title }) => {
     if (!noteId) {
       return { success: false, error: { message: 'Missing note id' } };
     }
@@ -176,13 +151,25 @@ export const noteSlice: StateCreator<
     return false;
   },
 
-  removeNote: async ({ folderId, noteId, userId }) => {
-    if (!userId) {
-      return { success: false, error: { message: 'Unauthorized' } };
+  moveNote: async ({ folderId, noteId }) => {
+    if (!noteId) {
+      return { success: false, error: { message: 'Missing note id' } };
     }
-    if (!folderId) {
-      return { success: false, error: { message: 'Missing folder id' } };
+
+    set({ movingNote: true });
+    const res = await patchNoteMove({ folderId, noteId });
+    if (res.success) {
+      // Remove the note from the folderNotes array
+      const updFolderNotes = [...get().folderNotes].filter(
+        (n) => n.id !== noteId
+      );
+      set({ folderNotes: updFolderNotes });
     }
+    set({ movingNote: false });
+    return res;
+  },
+
+  removeNote: async ({ noteId }) => {
     if (!noteId) {
       return { success: false, error: { message: 'Missing note id' } };
     }
@@ -200,13 +187,7 @@ export const noteSlice: StateCreator<
     return res;
   },
 
-  updateNote: async ({ folderId, noteId, userId, content, title }) => {
-    if (!userId) {
-      return { success: false, error: { message: 'Unauthorized' } };
-    }
-    if (!folderId) {
-      return { success: false, error: { message: 'Missing folder id' } };
-    }
+  updateNote: async ({ noteId, content, title }) => {
     if (!noteId) {
       return { success: false, error: { message: 'Missing note id' } };
     }

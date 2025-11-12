@@ -80,7 +80,7 @@
   --dialog-background: hsl(var(--hue), 10%, 10%);
 
   --popover-focus: hsl(var(--hue), 10%, 17%);
-  --popover-border: hsl(var(--hue), 10%, 25%);
+  --popover-border: hsl(var(--hue), 10%, 20%);
   --popover-foreground: hsl(var(--hue), 10%, 95%);
 
   --error: hsl(var(--error-hue), 85%, 60%);

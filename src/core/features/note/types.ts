@@ -24,3 +24,5 @@ export type Note = {
 };
 export type NoteDB = Note & { _id: ObjectId };
 export type NoteItem = Omit<Note, 'userId'> & { id: string };
+
+export type TargetFolderData = { folderId: string; folderTitle: string };
