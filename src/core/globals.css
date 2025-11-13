@@ -327,6 +327,14 @@
   .prose h6 {
     @apply text-accent;
   }
+
+  /* Lists */
+  .prose li {
+    @apply list-disc list-inside;
+  }
+  .prose li::marker {
+    @apply text-accent;
+  }
 }
 
 @keyframes fade {

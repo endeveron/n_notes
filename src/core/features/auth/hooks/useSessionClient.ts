@@ -1,5 +1,5 @@
 import { signOut, useSession } from 'next-auth/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { SIGNIN_REDIRECT } from '@/core/constants';
 import { authStateManager } from '@/core/features/auth/state';
@@ -9,6 +9,7 @@ interface UseSessionClient {
   session: ExtendedSession | null;
   status: 'loading' | 'authenticated' | 'unauthenticated';
   isLoading: boolean;
+  userId?: string;
   refreshSession: () => Promise<ExtendedSession | null>;
   signOutSafely: () => Promise<void>;
 }
@@ -18,6 +19,10 @@ export function useSessionClient(): UseSessionClient {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const signOutInProgress = useRef(false);
+
+  const userId = useMemo(() => {
+    return session?.user.id;
+  }, [session?.user.id]);
 
   // Track session changes to update global state
   useEffect(() => {
@@ -107,6 +112,7 @@ export function useSessionClient(): UseSessionClient {
     session: session as ExtendedSession | null,
     status,
     isLoading: status === 'loading' || isRefreshing,
+    userId,
     refreshSession,
     signOutSafely,
   };

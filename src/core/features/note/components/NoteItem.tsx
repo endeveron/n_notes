@@ -12,7 +12,6 @@ import { TrashIcon } from '@/core/components/icons/TrashIcon';
 import TaskbarPrompt from '@/core/components/ui/TaskbarPrompt';
 import { MoveNoteDropdown } from '@/core/features/note/components/MoveNoteDropdown';
 import { useNoteStore } from '@/core/features/note/store';
-import { useNoteInitializer } from '@/core/features/note/store/useNoteInitializer';
 import {
   FolderItem,
   TargetFolderData,
@@ -34,7 +33,6 @@ const NoteItem = ({
   folders: FolderItem[];
 }) => {
   const router = useRouter();
-  const { userId } = useNoteInitializer();
 
   const moveNote = useNoteStore((s) => s.moveNote);
   const movingNote = useNoteStore((s) => s.movingNote);
@@ -84,8 +82,6 @@ const NoteItem = ({
   };
 
   const handleRemoveNoteAccept = async () => {
-    if (!userId) return;
-
     setRemoveNotePrompt(true);
     const res = await removeNote({ noteId: id });
 
@@ -106,7 +102,7 @@ const NoteItem = ({
   const plainContent = markdownToPlainText(content);
 
   const taskbar = (
-    <div className="ml-2 mr-1 h-6 flex gap-4">
+    <div className="ml-2 mr-1 h-6 flex gap-3">
       {removeNotePrompt ? (
         <div className="">
           <TaskbarPrompt
@@ -125,7 +121,7 @@ const NoteItem = ({
           />
 
           <div
-            className="icon--action mr-0.5"
+            className="icon--action mr-1"
             onClick={handleEditNote}
             title="Edit note"
           >

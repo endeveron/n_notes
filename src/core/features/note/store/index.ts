@@ -41,9 +41,3 @@ export const useNoteStore = create<Store>()(
     )
   )
 );
-
-// Usage
-// import { useNoteStore } from '@/core/features/note/store';
-
-// const folders = useNoteStore(state => state.folders);
-// const fetchFolders = useNoteStore(state => state.fetchFolders);

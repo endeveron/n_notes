@@ -1,14 +1,13 @@
 'use client';
 
 import { FolderPlusIcon } from '@/core/components/icons/FolderPlusIcon';
+import Taskbar from '@/core/components/ui/Taskbar';
 import { useSessionClient } from '@/core/features/auth/hooks/useSessionClient';
 import FolderList from '@/core/features/note/components/FolderList';
-import Taskbar from '@/core/components/ui/Taskbar';
 import { useNoteStore } from '@/core/features/note/store';
 
 const NoteClient = () => {
-  const { session } = useSessionClient();
-  const userId = session?.user.id;
+  const { userId } = useSessionClient();
 
   const creatingFolder = useNoteStore((s) => s.creatingFolder);
   const createFolder = useNoteStore((s) => s.createFolder);

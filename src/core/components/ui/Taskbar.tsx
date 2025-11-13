@@ -12,7 +12,7 @@ const Taskbar = ({ children, loading }: TaskbarProps) => {
   return (
     <div
       className={cn(
-        'flex items-center gap-3 mx-auto card bg-card/40 hover:bg-card rounded-full my-4 p-2',
+        'flex shrink-0 items-center gap-3 mx-auto card bg-card/40 hover:bg-card rounded-full my-4 p-2',
         loading && 'opacity-40 pointer-events-none trans-o'
       )}
     >

@@ -76,18 +76,20 @@ const FolderItem = ({
     <div
       onClick={handleClick}
       className={cn(
-        'cursor-pointer',
+        'cursor-pointer select-none',
         small
-          ? 'flex items-center hover:bg-card rounded-full pl-2 pr-2.5 trans-c'
+          ? 'flex items-center hover:bg-card rounded-full pl-2 pr-2.5 py-1 trans-c'
           : 'w-15.75'
       )}
     >
       {small ? (
+        // Colored circle
         <div
           className="w-2.5 h-2.5 rounded-full mr-1 trans-c"
           style={{ backgroundColor }}
         ></div>
       ) : (
+        // Folder
         <div
           className="relative mb-2 overflow-hidden h-10 rounded-sm trans-c"
           style={{ backgroundColor }}

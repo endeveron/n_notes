@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTheme } from 'next-themes';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -42,6 +42,7 @@ import {
 } from '@/core/components/ui/Select';
 import Taskbar from '@/core/components/ui/Taskbar';
 import TaskbarPrompt from '@/core/components/ui/TaskbarPrompt';
+import { useSessionClient } from '@/core/features/auth/hooks/useSessionClient';
 import FolderList from '@/core/features/note/components/FolderList';
 import NoteList from '@/core/features/note/components/NoteList';
 import { FolderColorKey, folderColors } from '@/core/features/note/maps';
@@ -50,15 +51,15 @@ import {
   UpdateFolderSchema,
 } from '@/core/features/note/schemas';
 import { useNoteStore } from '@/core/features/note/store';
-import { useNoteInitializer } from '@/core/features/note/store/useNoteInitializer';
 import { FolderItem } from '@/core/features/note/types';
 import { Theme } from '@/core/types';
 import { cn, getColorByKey } from '@/core/utils';
 
 export default function FolderPage() {
   const router = useRouter();
-  const { folderId, userId } = useNoteInitializer();
+  const pathname = usePathname();
   const { resolvedTheme } = useTheme();
+  const { userId } = useSessionClient();
 
   const creatingNote = useNoteStore((s) => s.creatingNote);
   const removingFolder = useNoteStore((s) => s.removingFolder);
@@ -72,7 +73,6 @@ export default function FolderPage() {
   const updateFolder = useNoteStore((s) => s.updateFolder);
 
   const [folderData, setFolderData] = useState<FolderItem | null>(null);
-  // const [showContent, setShowContent] = useState(false);
   const [removeFolderPrompt, setRemoveFolderPrompt] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -83,6 +83,11 @@ export default function FolderPage() {
       color: '',
     },
   });
+
+  const folderId = useMemo(() => {
+    const pathArr = pathname.split('/');
+    return pathArr.includes('folder') ? pathArr[2] : null;
+  }, [pathname]);
 
   const folderColor: string | null = useMemo(() => {
     if (!folderData?.color) return null;

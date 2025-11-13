@@ -3,14 +3,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import 'highlight.js/styles/github-dark.css';
 import { Lock, LockOpen } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
 
+import { AcceptIcon } from '@/core/components/icons/AcceptIcon';
 import { ClearIcon } from '@/core/components/icons/ClearIcon';
 import { EditIcon } from '@/core/components/icons/EditIcon';
 import { EyeIcon } from '@/core/components/icons/EyeIcon';
@@ -34,7 +35,9 @@ import LoadingIcon from '@/core/components/ui/LoadingIcon';
 import { NavBack } from '@/core/components/ui/NavBack';
 import Taskbar from '@/core/components/ui/Taskbar';
 import TaskbarPrompt from '@/core/components/ui/TaskbarPrompt';
+import { useSessionClient } from '@/core/features/auth/hooks/useSessionClient';
 import FolderList from '@/core/features/note/components/FolderList';
+import { MoveNoteDropdown } from '@/core/features/note/components/MoveNoteDropdown';
 import {
   updateNoteContentSchema,
   UpdateNoteContentSchema,
@@ -42,19 +45,17 @@ import {
   UpdateNoteTitleSchema,
 } from '@/core/features/note/schemas';
 import { useNoteStore } from '@/core/features/note/store';
-import { useNoteInitializer } from '@/core/features/note/store/useNoteInitializer';
 import { NoteItem, TargetFolderData } from '@/core/features/note/types';
 import { useClipboard } from '@/core/hooks/useClipboard';
 import { ServerActionResult } from '@/core/types';
 import { cn } from '@/core/utils';
-import { MoveNoteDropdown } from '@/core/features/note/components/MoveNoteDropdown';
-import { AcceptIcon } from '@/core/components/icons/AcceptIcon';
 
 export default function NotePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { noteId, userId } = useNoteInitializer();
+  const pathname = usePathname();
   const { paste } = useClipboard();
+  const { userId } = useSessionClient();
 
   const decryptNote = useNoteStore((s) => s.decryptNote);
   const decryptNoteInDB = useNoteStore((s) => s.decryptNoteInDB);
@@ -91,7 +92,7 @@ export default function NotePage() {
     },
   });
 
-  const hasChangesRef = useRef(false);
+  // const hasChangesRef = useRef(false);
   const content = contentForm.watch('content');
 
   const folderId = note && note.folderId;
@@ -100,6 +101,11 @@ export default function NotePage() {
   const contentIsEmpty = note && !note.content && !content;
   const contentIsEncrypted = note && note.encrypted;
   const contentIsDecrypted = note && note.decrypted;
+
+  const noteId = useMemo(() => {
+    const pathArr = pathname.split('/');
+    return pathArr.includes('note') ? pathArr[2] : null;
+  }, [pathname]);
 
   const handleToggleMode = () => {
     if (contentIsEncrypted) return;
@@ -128,13 +134,13 @@ export default function NotePage() {
     if (content) {
       setEditMode(true);
       contentForm.setValue('content', content);
-      hasChangesRef.current = true;
+      // hasChangesRef.current = true;
     }
   };
 
   const handleClearContent = () => {
     contentForm.setValue('content', '');
-    hasChangesRef.current = true;
+    // hasChangesRef.current = true;
     setNote((prev) =>
       prev
         ? {
@@ -237,7 +243,7 @@ export default function NotePage() {
         : null
     );
 
-    hasChangesRef.current = false;
+    // hasChangesRef.current = false;
     setEditMode(false);
   };
 
@@ -342,12 +348,12 @@ export default function NotePage() {
     }
   }, [contentIsEncrypted, contentIsDecrypted, decryptNoteContentLocally]);
 
-  // Update ref when forms change
-  useEffect(() => {
-    if (titleIsDirty || contentIsDirty) {
-      hasChangesRef.current = true;
-    }
-  }, [titleIsDirty, contentIsDirty]);
+  // // Update ref when forms change
+  // useEffect(() => {
+  //   if (titleIsDirty || contentIsDirty) {
+  //     // hasChangesRef.current = true;
+  //   }
+  // }, [titleIsDirty, contentIsDirty]);
 
   // Initialization: retrieve a note from the folderNotes array
   useEffect(() => {
@@ -405,7 +411,7 @@ export default function NotePage() {
   return (
     <div className="fade size-full flex flex-col px-4">
       <div className="sticky z-10 top-0 min-h-20 flex items-center gap-4 bg-background trans-c">
-        <div className="flex flex-1 items-center gap-4">
+        <div className="flex flex-1 items-center gap-4 min-w-0 w-full overflow-hidden">
           <NavBack />
 
           {note && editMode ? (
@@ -428,12 +434,17 @@ export default function NotePage() {
           ) : null}
 
           {note && !editMode ? (
-            <div className="fade flex items-center gap-1">
-              <div className="text-icon">
+            <div className="flex items-center gap-2 min-w-0">
+              {/* Icon */}
+              <div className="shrink-0 text-icon">
                 {contentIsEncrypted ? <LockIcon /> : <FileIcon />}
               </div>
-              <div className="py-4 text-xl font-bold cursor-default">
-                {note.title}
+
+              {/* Title (truncate target) */}
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <span className="block truncate py-4 text-xl font-bold cursor-default">
+                  {note.title}
+                </span>
               </div>
             </div>
           ) : null}
@@ -448,7 +459,7 @@ export default function NotePage() {
             />
           ) : (
             <>
-              {hasChangesRef.current ? (
+              {titleIsDirty || contentIsDirty ? (
                 <div
                   onClick={handleSaveNote}
                   className="ml-1 text-accent cursor-pointer trans-c"
@@ -501,7 +512,7 @@ export default function NotePage() {
                 </div>
               ) : null}
 
-              {content ? (
+              {content && editMode ? (
                 <div
                   onClick={handleClearContent}
                   className="ml-1 icon--action"

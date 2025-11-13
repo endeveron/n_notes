@@ -1,15 +1,13 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import { useRouter } from 'next/navigation';
+import { useMemo } from 'react';
 
-import { HomeIcon } from '@/core/components/icons/HomeIcon';
 import { ScrollArea } from '@/core/components/ui/ScrollArea';
 import FolderItem from '@/core/features/note/components/FolderItem';
 import { useNoteStore } from '@/core/features/note/store';
 import { Theme } from '@/core/types';
 import { cn } from '@/core/utils';
-import { useMemo } from 'react';
 
 export interface FolderListProps {
   small?: boolean;
@@ -17,7 +15,6 @@ export interface FolderListProps {
 
 const FolderList = ({ small }: FolderListProps) => {
   const { resolvedTheme } = useTheme();
-  const router = useRouter();
 
   const folders = useNoteStore((state) => state.folders);
   const fetchingFolders = useNoteStore((state) => state.fetchingFolders);
@@ -36,17 +33,6 @@ const FolderList = ({ small }: FolderListProps) => {
             small ? 'my-8 gap-x-1' : 'gap-x-4'
           )}
         >
-          {small ? (
-            <div className="hover:bg-card rounded-full mr-1.5 trans-c">
-              <HomeIcon
-                onClick={() => {
-                  router.push('/');
-                }}
-                className="icon--action"
-              />
-            </div>
-          ) : null}
-
           {sortedFolders.map((data) => (
             <FolderItem
               {...data}

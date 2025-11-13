@@ -6,10 +6,10 @@ import {
   patchFolder,
   postFolder,
 } from '@/core/features/note/actions';
+import { FolderColorKey } from '@/core/features/note/maps';
 import { NoteSlice } from '@/core/features/note/store/noteSlice';
 import { FolderItem } from '@/core/features/note/types';
 import { ServerActionResult } from '@/core/types';
-import { FolderColorKey } from '@/core/features/note/maps';
 
 export interface FolderSlice {
   creatingFolder: boolean;
@@ -31,7 +31,7 @@ export interface FolderSlice {
     folderId: string;
     userId: string;
   }) => Promise<ServerActionResult>;
-  fetchFolders: (args: { userId: string }) => Promise<void>;
+  fetchFolders: (args: { userId: string }) => Promise<ServerActionResult>;
 }
 
 export const folderSlice: StateCreator<
@@ -98,13 +98,19 @@ export const folderSlice: StateCreator<
   },
 
   fetchFolders: async ({ userId }) => {
-    if (!userId) return;
+    if (!userId) {
+      return { success: false, error: { message: 'Unauthorized' } };
+    }
+
+    console.log('Fetch folders');
 
     set({ fetchingFolders: true });
     const res = await getFolders({ userId });
     if (res.success && res.data) {
       set({ folders: res.data });
     }
+
     set({ fetchingFolders: false });
+    return res;
   },
 });
