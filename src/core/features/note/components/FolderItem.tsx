@@ -19,6 +19,7 @@ import { ReactNode, useEffect, useState } from 'react';
 
 interface FolderListProps extends TFolderItem {
   theme: Theme;
+  activeFolderId?: string;
   small?: boolean;
 }
 
@@ -30,6 +31,7 @@ const FolderItem = ({
   small,
   title,
   theme,
+  activeFolderId,
 }: FolderListProps) => {
   const router = useRouter();
   const [folderIconEl, setFolderIconEl] = useState<ReactNode | null>(null);
@@ -79,7 +81,8 @@ const FolderItem = ({
         'cursor-pointer select-none',
         small
           ? 'flex items-center hover:bg-card rounded-full pl-2 pr-2.5 py-1 trans-c'
-          : 'w-15.75'
+          : 'w-15.75',
+        small && activeFolderId === id && 'bg-card pointer-events-none'
       )}
     >
       {small ? (

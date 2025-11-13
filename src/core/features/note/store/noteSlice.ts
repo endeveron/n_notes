@@ -3,21 +3,24 @@ import { StateCreator } from 'zustand';
 import {
   deleteNote,
   getFolderNotes,
+  getNote,
   getNoteDecrypt,
   patchNote,
   patchNoteDecrypt,
   patchNoteEncrypt,
+  patchNoteFavorite,
   patchNoteMove,
   postNote,
 } from '@/core/features/note/actions';
 import { FolderSlice } from '@/core/features/note/store/folderSlice';
 import { NoteItem } from '@/core/features/note/types';
+import { updateFolderNotes } from '@/core/features/note/utils';
 import { ServerActionResult } from '@/core/types';
-import { updateFolderNotes } from '@/core/utils/note';
 
 export interface NoteSlice {
   creatingNote: boolean;
   fetchingFolderNotes: boolean;
+  favoriteNotes: NoteItem[];
   folderNotes: NoteItem[];
   movingNote: boolean;
   notes: NoteItem[];
@@ -40,6 +43,9 @@ export interface NoteSlice {
     folderId: string;
     userId: string;
   }) => Promise<boolean>;
+  fetchNote: (args: {
+    noteId: string;
+  }) => Promise<ServerActionResult<NoteItem>>;
   moveNote: (args: {
     noteId: string;
     folderId: string;
@@ -49,6 +55,10 @@ export interface NoteSlice {
     noteId: string;
     content?: string;
     title?: string;
+  }) => Promise<ServerActionResult>;
+  updateNoteFavorite: (args: {
+    noteId: string;
+    favorite: boolean;
   }) => Promise<ServerActionResult>;
 }
 
@@ -60,6 +70,7 @@ export const noteSlice: StateCreator<
 > = (set, get) => ({
   creatingNote: false,
   fetchingFolderNotes: false,
+  favoriteNotes: [],
   folderNotes: [],
   movingNote: false,
   notes: [],
@@ -105,9 +116,11 @@ export const noteSlice: StateCreator<
     const res = await patchNoteDecrypt({ noteId });
     if (res.success && res.data?.content) {
       // Update the note in the folderNotes array
-      updateFolderNotes({
-        folderNotes: get().folderNotes,
-        note: res.data,
+      set({
+        folderNotes: updateFolderNotes({
+          folderNotes: get().folderNotes,
+          note: res.data,
+        }),
       });
     }
     set({ updatingNote: false });
@@ -126,9 +139,11 @@ export const noteSlice: StateCreator<
     const res = await patchNoteEncrypt({ noteId, content, title });
     if (res.success && res.data?.content) {
       // Update the note in the folderNotes array
-      updateFolderNotes({
-        folderNotes: get().folderNotes,
-        note: res.data,
+      set({
+        folderNotes: updateFolderNotes({
+          folderNotes: get().folderNotes,
+          note: res.data,
+        }),
       });
     }
     set({ updatingNote: false });
@@ -149,6 +164,17 @@ export const noteSlice: StateCreator<
     }
     set({ fetchingFolderNotes: false });
     return false;
+  },
+
+  fetchNote: async ({ noteId }) => {
+    if (!noteId)
+      return {
+        success: false,
+        error: { message: 'Missing note id' },
+      };
+
+    const res = await getNote({ noteId });
+    return res;
   },
 
   moveNote: async ({ folderId, noteId }) => {
@@ -199,10 +225,56 @@ export const noteSlice: StateCreator<
     const res = await patchNote({ noteId, content, title });
     if (res.success && res.data?.id) {
       // Update the note in the folderNotes array
-      updateFolderNotes({
-        folderNotes: get().folderNotes,
-        note: res.data,
+      set({
+        folderNotes: updateFolderNotes({
+          folderNotes: get().folderNotes,
+          note: res.data,
+        }),
       });
+    }
+    set({ updatingNote: false });
+    return res;
+  },
+
+  updateNoteFavorite: async ({ noteId, favorite }) => {
+    if (!noteId) {
+      return { success: false, error: { message: 'Missing note id' } };
+    }
+    if (typeof favorite !== 'boolean') {
+      return { success: false, error: { message: 'Missing required data' } };
+    }
+
+    set({ updatingNote: true });
+    const res = await patchNoteFavorite({ noteId, favorite });
+    if (res.success && res.data?.id) {
+      // Update the note in the folderNotes array
+      set({
+        folderNotes: updateFolderNotes({
+          folderNotes: get().folderNotes,
+          note: res.data,
+        }),
+      });
+
+      let updFavoriteNotes: NoteItem[];
+
+      // Update favorite notes array
+      updFavoriteNotes = [...get().favoriteNotes];
+      const indexFav = updFavoriteNotes.findIndex((n) => n.id === noteId);
+
+      if (favorite && indexFav === -1) {
+        // Add the note to the favorites array
+        updFavoriteNotes.push(res.data);
+        updFavoriteNotes.sort((a, b) => a.title.localeCompare(b.title));
+        set({ favoriteNotes: updFavoriteNotes });
+      }
+
+      if (!favorite && indexFav !== -1) {
+        // Remove the note from the favorites array
+        updFavoriteNotes = [...get().folderNotes].filter(
+          (n) => n.id !== noteId
+        );
+        set({ favoriteNotes: updFavoriteNotes });
+      }
     }
     set({ updatingNote: false });
     return res;

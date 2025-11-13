@@ -19,10 +19,12 @@ import {
 } from '@/core/features/note/types';
 import { cn, markdownToPlainText } from '@/core/utils';
 import { AcceptIcon } from '@/core/components/icons/AcceptIcon';
+import { StarIcon } from '@/core/components/icons/StarIcon';
 
 const NoteItem = ({
   id,
   content,
+  favorite,
   // tags,
   // timestamp,
   folderId,
@@ -38,9 +40,12 @@ const NoteItem = ({
   const movingNote = useNoteStore((s) => s.movingNote);
   const removeNote = useNoteStore((s) => s.removeNote);
   const removingNote = useNoteStore((s) => s.removingNote);
+  const updateNoteFavorite = useNoteStore((s) => s.updateNoteFavorite);
+  const updatingNote = useNoteStore((s) => s.updatingNote);
 
   const [showTaskbar, setShowTaskbar] = useState(false);
   const [removeNotePrompt, setRemoveNotePrompt] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(favorite);
 
   const handleToggleTaskbar = () => {
     setShowTaskbar((prev) => !prev);
@@ -59,18 +64,24 @@ const NoteItem = ({
       res.success ? (
         <div className="flex items-center gap-3">
           <AcceptIcon className="text-success" />
-          <div>
-            Note moved to the{' '}
-            <span className="text-accent font-semibold mx-0.5">
-              {folderTitle}
-            </span>{' '}
-            folder
-          </div>
+          <div>{`Note moved to the ${folderTitle} folder`}</div>
         </div>
       ) : (
         'Unable to move note'
       )
     );
+  };
+
+  const handleFavorite = async () => {
+    const updFavorite = !favorite;
+    setIsFavorite(updFavorite);
+
+    const res = await updateNoteFavorite({ noteId: id, favorite: updFavorite });
+
+    if (!res.success) {
+      toast(res.error.message ?? 'Unable to process favorite in the database');
+      return;
+    }
   };
 
   const handleEditNote = () => {
@@ -104,22 +115,28 @@ const NoteItem = ({
   const taskbar = (
     <div className="ml-2 mr-1 h-6 flex gap-3">
       {removeNotePrompt ? (
-        <div className="">
-          <TaskbarPrompt
-            onAccept={handleRemoveNoteAccept}
-            onDecline={handleRemoveNoteDecline}
-            loading={removingNote}
-          />
-        </div>
+        <TaskbarPrompt
+          onAccept={handleRemoveNoteAccept}
+          onDecline={handleRemoveNoteDecline}
+          loading={removingNote}
+        />
       ) : (
         <>
-          <MoveNoteDropdown
-            currentFolderId={folderId}
-            folders={folders}
-            onMoveNote={handleMoveNote}
-            loading={movingNote}
-          />
-
+          <div
+            className={cn('mr-1', isFavorite ? 'text-icon' : 'icon--action')}
+            onClick={handleFavorite}
+            title={`${isFavorite ? 'Unfavorite' : 'Favorite'} note`}
+          >
+            <StarIcon />
+          </div>
+          <div className="mr-1">
+            <MoveNoteDropdown
+              currentFolderId={folderId}
+              folders={folders}
+              onMoveNote={handleMoveNote}
+              loading={movingNote}
+            />
+          </div>
           <div
             className="icon--action mr-1"
             onClick={handleEditNote}
@@ -140,7 +157,12 @@ const NoteItem = ({
   );
 
   return (
-    <div className="card max-w-full flex p-2 cursor-pointer">
+    <div
+      className={cn(
+        'card max-w-full flex p-2 cursor-pointer trans-o',
+        updatingNote && 'opacity-0 pointer-events-none'
+      )}
+    >
       <div
         onClick={handleNoteClick}
         className="flex flex-1 w-full items-center min-w-0"

@@ -2,13 +2,14 @@ import { StateCreator } from 'zustand';
 
 import {
   deleteFolder,
-  getFolders,
+  getInitData,
   patchFolder,
   postFolder,
 } from '@/core/features/note/actions';
 import { FolderColorKey } from '@/core/features/note/maps';
 import { NoteSlice } from '@/core/features/note/store/noteSlice';
 import { FolderItem } from '@/core/features/note/types';
+import { updateFolders } from '@/core/features/note/utils';
 import { ServerActionResult } from '@/core/types';
 
 export interface FolderSlice {
@@ -31,7 +32,7 @@ export interface FolderSlice {
     folderId: string;
     userId: string;
   }) => Promise<ServerActionResult>;
-  fetchFolders: (args: { userId: string }) => Promise<ServerActionResult>;
+  fetchInitData: (args: { userId: string }) => Promise<ServerActionResult>;
 }
 
 export const folderSlice: StateCreator<
@@ -54,7 +55,8 @@ export const folderSlice: StateCreator<
     set({ creatingFolder: true });
     const res = await postFolder({ userId });
     if (res.success && res.data?.id) {
-      get().fetchFolders({ userId }); // Refresh folders
+      // Add the folder to the folders array
+      set({ folders: [...get().folders, res.data] });
     }
     set({ creatingFolder: false });
     return res;
@@ -73,8 +75,13 @@ export const folderSlice: StateCreator<
 
     set({ updatingFolder: true });
     const res = await patchFolder({ color, folderId, title });
-    if (res.success) {
-      get().fetchFolders({ userId }); // Refresh folders
+    if (res.success && res.data?.id) {
+      // Update the folder in the folders array
+      const updFolders = updateFolders({
+        folders: get().folders,
+        folder: res.data,
+      });
+      set({ folders: updFolders });
     }
     set({ updatingFolder: false });
     return res;
@@ -91,23 +98,23 @@ export const folderSlice: StateCreator<
     set({ removingFolder: true });
     const res = await deleteFolder({ folderId });
     if (res.success) {
-      get().fetchFolders({ userId }); // Refresh folders
+      // Remove the folder from the folders array
+      set({ folders: [...get().folders].filter((f) => f.id !== folderId) });
     }
     set({ removingFolder: false });
     return res;
   },
 
-  fetchFolders: async ({ userId }) => {
+  fetchInitData: async ({ userId }) => {
     if (!userId) {
       return { success: false, error: { message: 'Unauthorized' } };
     }
 
-    console.log('Fetch folders');
-
     set({ fetchingFolders: true });
-    const res = await getFolders({ userId });
+    const res = await getInitData({ userId });
     if (res.success && res.data) {
-      set({ folders: res.data });
+      set({ favoriteNotes: res.data.favoriteNotes });
+      set({ folders: res.data.folders });
     }
 
     set({ fetchingFolders: false });

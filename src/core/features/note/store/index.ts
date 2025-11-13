@@ -34,6 +34,7 @@ export const useNoteStore = create<Store>()(
       {
         name: 'app-store',
         partialize: (state) => ({
+          favoriteNotes: state.favoriteNotes,
           folders: state.folders,
           folderNotes: state.folderNotes,
         }),

@@ -350,7 +350,7 @@ export default function FolderPage() {
         )}
       </div>
       <div className="flex-center">
-        <FolderList small />
+        <FolderList small activeFolderId={folderId ?? undefined} />
       </div>
     </div>
   );

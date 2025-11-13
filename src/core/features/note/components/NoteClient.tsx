@@ -4,6 +4,7 @@ import { FolderPlusIcon } from '@/core/components/icons/FolderPlusIcon';
 import Taskbar from '@/core/components/ui/Taskbar';
 import { useSessionClient } from '@/core/features/auth/hooks/useSessionClient';
 import FolderList from '@/core/features/note/components/FolderList';
+import NoteList from '@/core/features/note/components/NoteList';
 import { useNoteStore } from '@/core/features/note/store';
 
 const NoteClient = () => {
@@ -11,6 +12,8 @@ const NoteClient = () => {
 
   const creatingFolder = useNoteStore((s) => s.creatingFolder);
   const createFolder = useNoteStore((s) => s.createFolder);
+  const favoriteNotes = useNoteStore((s) => s.favoriteNotes);
+  const folders = useNoteStore((state) => state.folders);
 
   const handleCreateFolder = async () => {
     if (!userId) return;
@@ -36,6 +39,12 @@ const NoteClient = () => {
       </div>
 
       <FolderList />
+
+      {favoriteNotes.length ? (
+        <div className="my-8">
+          <NoteList folders={folders} notes={favoriteNotes} />
+        </div>
+      ) : null}
     </div>
   );
 };

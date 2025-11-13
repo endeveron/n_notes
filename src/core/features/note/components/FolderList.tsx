@@ -11,9 +11,10 @@ import { cn } from '@/core/utils';
 
 export interface FolderListProps {
   small?: boolean;
+  activeFolderId?: string;
 }
 
-const FolderList = ({ small }: FolderListProps) => {
+const FolderList = ({ activeFolderId, small }: FolderListProps) => {
   const { resolvedTheme } = useTheme();
 
   const folders = useNoteStore((state) => state.folders);
@@ -36,6 +37,7 @@ const FolderList = ({ small }: FolderListProps) => {
           {sortedFolders.map((data) => (
             <FolderItem
               {...data}
+              activeFolderId={activeFolderId}
               small={small}
               theme={resolvedTheme as Theme}
               key={data.id}

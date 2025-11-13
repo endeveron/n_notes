@@ -13,23 +13,27 @@ import { decryptString, encryptString } from '@/core/lib/crypto';
 import { mongoDB } from '@/core/lib/mongo';
 import { ServerActionResult } from '@/core/types';
 import { handleActionError } from '@/core/utils/error';
-import { parseNoteItem } from '@/core/utils/note';
+import { parseFolderItem, parseNoteItem } from '@/core/features/note/utils';
 
-export const getFolders = async ({
+export const getInitData = async ({
   userId,
 }: {
   userId: string;
-}): Promise<ServerActionResult<FolderItem[]>> => {
+}): Promise<
+  ServerActionResult<{
+    folders: FolderItem[];
+    favoriteNotes: NoteItem[];
+  }>
+> => {
   if (!userId) {
-    return handleActionError('getFolders: Missing required data');
+    return handleActionError('getInitData: Missing required data');
   }
 
   try {
     await mongoDB.connect();
 
     const folderDocs = await FolderModel.find<FolderDB>({ userId });
-
-    const folderItems: FolderItem[] = folderDocs.map((d) => ({
+    const parsedFolders: FolderItem[] = folderDocs.map((d) => ({
       id: d._id.toString(),
       color: d.color,
       tags: d.tags,
@@ -37,12 +41,21 @@ export const getFolders = async ({
       title: d.title,
     }));
 
+    const favNoteDocs = await NoteModel.find<NoteDB>({
+      userId,
+      favorite: true,
+    });
+    const parsedFavNotes = favNoteDocs.map((n) => parseNoteItem(n));
+
     return {
       success: true,
-      data: folderItems,
+      data: {
+        favoriteNotes: parsedFavNotes,
+        folders: parsedFolders,
+      },
     };
   } catch (err: unknown) {
-    return handleActionError('getFolders: Unable to retrieve folders', err);
+    return handleActionError('getInitData: Unable to retrieve folders', err);
   }
 };
 
@@ -112,7 +125,7 @@ export const patchFolder = async ({
   folderId: string;
   color?: FolderColorKey;
   title?: string;
-}): Promise<ServerActionResult> => {
+}): Promise<ServerActionResult<FolderItem>> => {
   if (!folderId) {
     return handleActionError('patchFolder: Missing required data');
   }
@@ -142,6 +155,7 @@ export const patchFolder = async ({
 
     return {
       success: true,
+      data: parseFolderItem(folderDoc),
     };
   } catch (err: unknown) {
     return handleActionError('patchFolder: Unable to update folder', err);
@@ -152,7 +166,7 @@ export const postFolder = async ({
   userId,
 }: {
   userId: string;
-}): Promise<ServerActionResult<{ id: string }>> => {
+}): Promise<ServerActionResult<FolderItem>> => {
   if (!userId) {
     return handleActionError('postFolder: Missing required data');
   }
@@ -160,18 +174,21 @@ export const postFolder = async ({
   try {
     await mongoDB.connect();
 
-    const folder = await FolderModel.create({
-      color: 'gray',
+    const initialData = {
+      color: 'gray' as FolderColorKey,
       tags: [],
       timestamp: Date.now(),
       title: 'Untitled',
       userId,
-    });
+    };
+
+    const folder = await FolderModel.create(initialData);
 
     return {
       success: true,
       data: {
         id: folder._id.toString(),
+        ...initialData,
       },
     };
   } catch (err: unknown) {
@@ -179,6 +196,36 @@ export const postFolder = async ({
   }
 };
 
+export const getNote = async ({
+  noteId,
+}: {
+  noteId: string;
+}): Promise<ServerActionResult<NoteItem>> => {
+  if (!noteId) {
+    return handleActionError('getNote: Missing mote id');
+  }
+
+  try {
+    await mongoDB.connect();
+
+    const noteDoc = await NoteModel.findById(noteId);
+    if (!noteDoc) {
+      return {
+        success: false,
+        error: {
+          message: 'Not found',
+        },
+      };
+    }
+
+    return {
+      success: true,
+      data: parseNoteItem(noteDoc),
+    };
+  } catch (err: unknown) {
+    return handleActionError('getNote: Unable to retrieve note', err);
+  }
+};
 export const patchNote = async ({
   noteId,
   content,
@@ -363,6 +410,42 @@ export const patchNoteEncrypt = async ({
   }
 };
 
+export const patchNoteFavorite = async ({
+  noteId,
+  favorite,
+}: {
+  noteId: string;
+  favorite: boolean;
+}): Promise<ServerActionResult<NoteItem>> => {
+  if (!noteId || typeof favorite !== 'boolean') {
+    return handleActionError('patchNoteFavorite: Missing required data');
+  }
+
+  try {
+    await mongoDB.connect();
+
+    const noteDoc = await NoteModel.findById(noteId);
+    if (!noteDoc) {
+      return {
+        success: false,
+        error: {
+          message: 'Not found',
+        },
+      };
+    }
+
+    noteDoc.favorite = favorite;
+    await noteDoc.save();
+
+    return {
+      success: true,
+      data: parseNoteItem(noteDoc),
+    };
+  } catch (err: unknown) {
+    return handleActionError('patchNoteFavorite: Unable to encrypt note', err);
+  }
+};
+
 export const patchNoteMove = async ({
   folderId,
   noteId,
@@ -417,6 +500,7 @@ export const postNote = async ({
     const initialData = {
       content: '',
       encrypted: false,
+      favorite: false,
       folderId,
       tags: [],
       timestamp: Date.now(),

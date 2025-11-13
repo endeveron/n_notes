@@ -11,6 +11,7 @@ const noteSchema = new Schema<Note>(
     title: { type: String, required: true },
     userId: { type: String, required: true },
     encrypted: { type: Boolean, default: false },
+    favorite: { type: Boolean, default: false },
   },
   {
     versionKey: false,

@@ -24,6 +24,8 @@ interface MoveNoteDropdownProps {
   onMoveNote: (args: TargetFolderData) => void;
 }
 
+const MIN_FOLDERS_TO_SHOW_SEARCH = 8;
+
 export function MoveNoteDropdown({
   currentFolderId,
   folders,
@@ -45,12 +47,12 @@ export function MoveNoteDropdown({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div className="w-6 h-6 mr-0.5 flex-center">
+        <div className="w-6 h-6 flex-center">
           {loading ? (
             <LoadingIcon className="scale-80" />
           ) : (
             <button
-              className="icon--action mr-0.5"
+              className="icon--action"
               aria-label="Move note to folder"
               title="Move note to folder"
             >
@@ -61,7 +63,9 @@ export function MoveNoteDropdown({
       </PopoverTrigger>
       <PopoverContent className="mt-2 w-40 p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search folder..." className="h-9" />
+          {availableFolders.length >= MIN_FOLDERS_TO_SHOW_SEARCH && (
+            <CommandInput placeholder="Search folder..." className="h-9" />
+          )}
           <CommandList>
             <CommandEmpty>No folders found.</CommandEmpty>
             <CommandGroup>

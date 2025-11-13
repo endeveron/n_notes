@@ -87,7 +87,7 @@
 
   --area: hsl(var(--hue), 10%, 15%);
   --muted: hsl(var(--hue), 10%, 60%);
-  --border: hsl(var(--hue), 10%, 35%);
+  --border: hsl(var(--hue), 10%, 30%);
   --icon: hsl(var(--accent-hue), 85%, 65%);
   --ring: hsl(var(--hue), 10%, 30%);
   --scroll: hsl(var(--hue), 10%, 30%);

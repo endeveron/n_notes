@@ -60,6 +60,8 @@ export default function NotePage() {
   const decryptNote = useNoteStore((s) => s.decryptNote);
   const decryptNoteInDB = useNoteStore((s) => s.decryptNoteInDB);
   const encryptNote = useNoteStore((s) => s.encryptNote);
+  const favoriteNotes = useNoteStore((s) => s.favoriteNotes);
+  const fetchNote = useNoteStore((s) => s.fetchNote);
   const folderNotes = useNoteStore((s) => s.folderNotes);
   const folders = useNoteStore((s) => s.folders);
   const moveNote = useNoteStore((s) => s.moveNote);
@@ -91,8 +93,6 @@ export default function NotePage() {
       content: '',
     },
   });
-
-  // const hasChangesRef = useRef(false);
   const content = contentForm.watch('content');
 
   const folderId = note && note.folderId;
@@ -134,13 +134,11 @@ export default function NotePage() {
     if (content) {
       setEditMode(true);
       contentForm.setValue('content', content);
-      // hasChangesRef.current = true;
     }
   };
 
   const handleClearContent = () => {
     contentForm.setValue('content', '');
-    // hasChangesRef.current = true;
     setNote((prev) =>
       prev
         ? {
@@ -242,8 +240,6 @@ export default function NotePage() {
           }
         : null
     );
-
-    // hasChangesRef.current = false;
     setEditMode(false);
   };
 
@@ -348,26 +344,40 @@ export default function NotePage() {
     }
   }, [contentIsEncrypted, contentIsDecrypted, decryptNoteContentLocally]);
 
-  // // Update ref when forms change
-  // useEffect(() => {
-  //   if (titleIsDirty || contentIsDirty) {
-  //     // hasChangesRef.current = true;
-  //   }
-  // }, [titleIsDirty, contentIsDirty]);
-
   // Initialization: retrieve a note from the folderNotes array
   useEffect(() => {
-    if (!folderNotes.length) return;
+    if (!folderNotes.length || !noteId) return;
 
     (async () => {
-      const index = folderNotes.findIndex((n) => n.id === noteId);
+      const noteInFolder = folderNotes.find((n) => n.id === noteId);
 
-      if (index === -1 && note) {
+      // Note exists in folder - use it
+      if (noteInFolder) {
+        setNote(noteInFolder);
+        return;
+      }
+
+      // Note not in folder but we already have it loaded - clear it
+      if (note) {
         setNote(null);
         return;
       }
 
-      setNote(folderNotes[index]);
+      // Check favorites
+      const noteInFavorites = favoriteNotes.find((n) => n.id === noteId);
+      if (noteInFavorites) {
+        setNote(noteInFavorites);
+        return;
+      }
+
+      // Fetch from server as last resort
+      const res = await fetchNote({ noteId });
+      if (!res.success || !res.data?.id) {
+        toast('Unable to retrieve note');
+        return;
+      }
+
+      setNote(res.data);
     })();
 
     // Don't include `note` in the deps array - when update note state
@@ -434,17 +444,20 @@ export default function NotePage() {
           ) : null}
 
           {note && !editMode ? (
-            <div className="flex items-center gap-2 min-w-0">
+            <div
+              onClick={handleToggleMode}
+              className="flex items-center gap-2 min-w-0"
+            >
               {/* Icon */}
               <div className="shrink-0 text-icon">
                 {contentIsEncrypted ? <LockIcon /> : <FileIcon />}
               </div>
 
-              {/* Title (truncate target) */}
+              {/* Title */}
               <div className="flex-1 min-w-0 overflow-hidden">
-                <span className="block truncate py-4 text-xl font-bold cursor-default">
+                <div className="truncate py-4 text-xl font-bold cursor-default">
                   {note.title}
-                </span>
+                </div>
               </div>
             </div>
           ) : null}
@@ -502,7 +515,7 @@ export default function NotePage() {
               </div>
 
               {note && !editMode ? (
-                <div className="ml-2">
+                <div className="ml-1">
                   <MoveNoteDropdown
                     currentFolderId={note.folderId}
                     folders={folders}
@@ -568,7 +581,10 @@ export default function NotePage() {
             ) : contentIsEmpty ? (
               pasteContentBtn
             ) : (
-              <article className="fade prose prose-lg dark:prose-invert max-w-none cursor-default">
+              <article
+                onClick={handleToggleMode}
+                className="fade prose prose-lg dark:prose-invert max-w-none cursor-default"
+              >
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeHighlight]}
@@ -586,7 +602,7 @@ export default function NotePage() {
       </div>
 
       <div className="flex-center">
-        <FolderList small />
+        <FolderList small activeFolderId={note?.folderId} />
       </div>
     </div>
   );

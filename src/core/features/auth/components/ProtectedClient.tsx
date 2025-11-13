@@ -9,19 +9,19 @@ import { useNoteStore } from '@/core/features/note/store';
 const ProtectedClient = ({ children }: { children: React.ReactNode }) => {
   const { userId } = useSessionClient();
 
-  const fetchFolders = useNoteStore((s) => s.fetchFolders);
+  const fetchInitData = useNoteStore((s) => s.fetchInitData);
 
-  // Initialize folders on mount
+  // Initialize folders
   useEffect(() => {
     if (!userId) return;
 
     (async () => {
-      const res = await fetchFolders({ userId });
+      const res = await fetchInitData({ userId });
       if (!res.success) {
         toast(res.error.message ?? 'Unable to retrieve folders');
       }
     })();
-  }, [userId, fetchFolders]);
+  }, [userId, fetchInitData]);
 
   return (
     <div className="fade size-full min-w-xs max-w-7xl mx-auto">{children}</div>

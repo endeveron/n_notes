@@ -14,12 +14,13 @@ export type FolderItem = Omit<Folder, 'userId'> & { id: string };
 
 export type Note = {
   content: string;
+  encrypted: boolean;
+  favorite: boolean;
   folderId: string;
   tags: string[];
   timestamp: number;
   title: string;
   userId: string;
-  encrypted: boolean;
   decrypted?: boolean;
 };
 export type NoteDB = Note & { _id: ObjectId };
