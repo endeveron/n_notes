@@ -6,6 +6,7 @@ import { useSessionClient } from '@/core/features/auth/hooks/useSessionClient';
 import FolderList from '@/core/features/note/components/FolderList';
 import NoteList from '@/core/features/note/components/NoteList';
 import { useNoteStore } from '@/core/features/note/store';
+import { cn } from '@/core/utils';
 
 const NoteClient = () => {
   const { userId } = useSessionClient();
@@ -13,6 +14,7 @@ const NoteClient = () => {
   const creatingFolder = useNoteStore((s) => s.creatingFolder);
   const createFolder = useNoteStore((s) => s.createFolder);
   const favoriteNotes = useNoteStore((s) => s.favoriteNotes);
+  const fetchingFolders = useNoteStore((state) => state.fetchingFolders);
   const folders = useNoteStore((state) => state.folders);
 
   const handleCreateFolder = async () => {
@@ -41,7 +43,12 @@ const NoteClient = () => {
       <FolderList />
 
       {favoriteNotes.length ? (
-        <div className="my-8">
+        <div
+          className={cn(
+            'my-8 trans-o',
+            fetchingFolders && 'opacity-40 pointer-events-none'
+          )}
+        >
           <NoteList folders={folders} notes={favoriteNotes} />
         </div>
       ) : null}
