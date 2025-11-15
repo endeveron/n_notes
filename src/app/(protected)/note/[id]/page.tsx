@@ -344,36 +344,30 @@ export default function NotePage() {
     }
   }, [contentIsEncrypted, contentIsDecrypted, decryptNoteContentLocally]);
 
-  // Initialization: retrieve a note from the folderNotes array
+  // Initialize note data
   useEffect(() => {
-    if (!folderNotes.length || !noteId) return;
+    if (!noteId) return;
 
+    // Search note in the folderNotes array
+    const noteFromFolderNotes =
+      folderNotes.length && folderNotes.find((n) => n.id === noteId);
+    if (noteFromFolderNotes) {
+      setNote(noteFromFolderNotes);
+      return;
+    }
+
+    // Check favoriteNotes array
+    const noteFromFavoriteNotes = favoriteNotes.find((n) => n.id === noteId);
+    if (noteFromFavoriteNotes) {
+      setNote(noteFromFavoriteNotes);
+      return;
+    }
+
+    // Fetch from server as last resort
     (async () => {
-      const noteInFolder = folderNotes.find((n) => n.id === noteId);
-
-      // Note exists in folder - use it
-      if (noteInFolder) {
-        setNote(noteInFolder);
-        return;
-      }
-
-      // Note not in folder but we already have it loaded - clear it
-      if (note) {
-        setNote(null);
-        return;
-      }
-
-      // Check favorites
-      const noteInFavorites = favoriteNotes.find((n) => n.id === noteId);
-      if (noteInFavorites) {
-        setNote(noteInFavorites);
-        return;
-      }
-
-      // Fetch from server as last resort
       const res = await fetchNote({ noteId });
       if (!res.success || !res.data?.id) {
-        toast('Unable to retrieve note');
+        toast('Unable to retrieve note data');
         return;
       }
 
