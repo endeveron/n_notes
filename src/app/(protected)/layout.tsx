@@ -12,5 +12,9 @@ export default async function ProtectedLayout({
   const session = await auth();
   if (!session?.user) return redirect(SIGNIN_REDIRECT);
 
-  return <ProtectedClient>{children}</ProtectedClient>;
+  return (
+    <div className="">
+      <ProtectedClient>{children}</ProtectedClient>
+    </div>
+  );
 }

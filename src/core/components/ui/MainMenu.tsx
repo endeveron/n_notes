@@ -71,11 +71,6 @@ const MainMenu = ({ className }: MainMenuProps) => {
 
           <DropdownMenuSeparator />
 
-          {/* <DropdownMenuItem onClick={handleEditQuotes}>
-            <EditIcon className="text-icon" />
-            Edit quotes
-          </DropdownMenuItem> */}
-
           <DropdownMenuItem onClick={handleToggleTheme}>
             {themeIcon}
             {theme === 'light' ? 'Dark' : 'Light'} theme
