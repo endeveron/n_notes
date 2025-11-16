@@ -60,6 +60,7 @@ export interface NoteSlice {
     noteId: string;
     favorite: boolean;
   }) => Promise<ServerActionResult>;
+  updateFavoriteNotes: (args: { note: NoteItem }) => void;
 }
 
 export const noteSlice: StateCreator<
@@ -278,5 +279,13 @@ export const noteSlice: StateCreator<
     }
     set({ updatingNote: false });
     return res;
+  },
+
+  updateFavoriteNotes: ({ note }) => {
+    const updFavoriteNotes = [...get().favoriteNotes];
+    const index = updFavoriteNotes.findIndex((n) => n.id === note.id);
+    if (index === -1) return;
+    updFavoriteNotes[index] = note;
+    set({ favoriteNotes: updFavoriteNotes });
   },
 });

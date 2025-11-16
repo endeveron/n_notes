@@ -208,7 +208,11 @@ export default function FolderPage() {
                 <FolderFilledIcon />
               </div>
 
-              <div className="text-xl font-bold cursor-default">
+              <div
+                onClick={() => setIsDialogOpen(true)}
+                className="text-xl font-bold cursor-pointer"
+                title="Click to edit"
+              >
                 {folderData.title}
               </div>
             </>

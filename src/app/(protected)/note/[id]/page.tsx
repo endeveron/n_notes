@@ -70,6 +70,7 @@ export default function NotePage() {
   const removingNote = useNoteStore((s) => s.removingNote);
   const updateNote = useNoteStore((s) => s.updateNote);
   const updatingNote = useNoteStore((s) => s.updatingNote);
+  const updateFavoriteNotes = useNoteStore((s) => s.updateFavoriteNotes);
 
   const [note, setNote] = useState<NoteItem | null>(null);
   const [removeNotePrompt, setRemoveNotePrompt] = useState(false);
@@ -241,6 +242,17 @@ export default function NotePage() {
         : null
     );
     setEditMode(false);
+
+    // Update note in favoriteNotes array
+    if (favoriteNotes.length) {
+      updateFavoriteNotes({
+        note: {
+          ...note,
+          content,
+          title,
+        },
+      });
+    }
   };
 
   const handleMoveNote = async ({
@@ -440,7 +452,8 @@ export default function NotePage() {
           {note && !editMode ? (
             <div
               onClick={handleToggleMode}
-              className="flex items-center gap-2 min-w-0"
+              className="flex items-center gap-2 min-w-0 cursor-pointer"
+              title="Click to edit"
             >
               {/* Icon */}
               <div className="shrink-0 text-icon">
@@ -449,7 +462,7 @@ export default function NotePage() {
 
               {/* Title */}
               <div className="flex-1 min-w-0 overflow-hidden">
-                <div className="truncate py-4 text-xl font-bold cursor-default">
+                <div className="truncate py-4 text-xl font-bold">
                   {note.title}
                 </div>
               </div>
