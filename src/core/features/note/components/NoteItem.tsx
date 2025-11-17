@@ -4,10 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { AcceptIcon } from '@/core/components/icons/AcceptIcon';
 import { EditIcon } from '@/core/components/icons/EditIcon';
 import { FileIcon } from '@/core/components/icons/FileIcon';
 import { LockIcon } from '@/core/components/icons/LockIcon';
 import { MenuIcon } from '@/core/components/icons/MenuIcon';
+import { StarIcon } from '@/core/components/icons/StarIcon';
 import { TrashIcon } from '@/core/components/icons/TrashIcon';
 import TaskbarPrompt from '@/core/components/ui/TaskbarPrompt';
 import { MoveNoteDropdown } from '@/core/features/note/components/MoveNoteDropdown';
@@ -18,8 +20,6 @@ import {
   NoteItem as TNoteItem,
 } from '@/core/features/note/types';
 import { cn, markdownToPlainText } from '@/core/utils';
-import { AcceptIcon } from '@/core/components/icons/AcceptIcon';
-import { StarIcon } from '@/core/components/icons/StarIcon';
 
 const NoteItem = ({
   id,
@@ -159,7 +159,7 @@ const NoteItem = ({
   return (
     <div
       className={cn(
-        'card max-w-full flex p-2 cursor-pointer trans-o',
+        'card max-w-full flex p-2 cursor-pointer select-none trans-o',
         updatingNote && 'opacity-0 pointer-events-none'
       )}
     >

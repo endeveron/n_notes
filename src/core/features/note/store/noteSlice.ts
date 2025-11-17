@@ -205,10 +205,19 @@ export const noteSlice: StateCreator<
     const res = await deleteNote({ noteId });
     if (res.success) {
       // Remove the note from the folderNotes array
-      const updFolderNotes = [...get().folderNotes].filter(
-        (n) => n.id !== noteId
-      );
-      set({ folderNotes: updFolderNotes });
+      set({
+        folderNotes: [...get().folderNotes].filter((n) => n.id !== noteId),
+      });
+
+      // Check favoriteNotes array
+      const favoriteNotes = get().favoriteNotes;
+      if (favoriteNotes.length) {
+        const index = favoriteNotes.findIndex((n) => n.id === noteId);
+        if (index !== -1) {
+          // Remove the note from the favoriteNotes array
+          set({ favoriteNotes: [...favoriteNotes.splice(index, 1)] });
+        }
+      }
     }
     set({ removingNote: false });
     return res;
