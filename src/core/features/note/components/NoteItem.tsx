@@ -103,7 +103,11 @@ const NoteItem = ({
     }
 
     setRemoveNotePrompt(false);
-    router.replace(`/folder/${folderId}`);
+
+    // // Redirect to the parent folder
+    // if (pathname !== '/') {
+    //   router.replace(`/folder/${folderId}`);
+    // }
   };
 
   const handleRemoveNoteDecline = () => {
