@@ -215,7 +215,9 @@ export const noteSlice: StateCreator<
         const index = favoriteNotes.findIndex((n) => n.id === noteId);
         if (index !== -1) {
           // Remove the note from the favoriteNotes array
-          set({ favoriteNotes: [...favoriteNotes.splice(index, 1)] });
+          const updFavNotes = [...favoriteNotes];
+          updFavNotes.splice(index, 1);
+          set({ favoriteNotes: updFavNotes });
         }
       }
     }

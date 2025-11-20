@@ -31,7 +31,7 @@ const FolderList = ({ activeFolderId, small }: FolderListProps) => {
           className={cn(
             'flex flex-wrap gap-y-3 trans-o',
             fetchingFolders && 'opacity-40 pointer-events-none',
-            small ? 'my-8 gap-x-1' : 'gap-x-4'
+            small ? 'mt-10 gap-x-1' : 'gap-x-4'
           )}
         >
           {sortedFolders.map((data) => (

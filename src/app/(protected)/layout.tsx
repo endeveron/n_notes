@@ -9,8 +9,14 @@ export default async function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-  if (!session?.user) return redirect(SIGNIN_REDIRECT);
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return redirect(SIGNIN_REDIRECT);
+    }
+  } catch {
+    return redirect(SIGNIN_REDIRECT);
+  }
 
   return <ProtectedClient>{children}</ProtectedClient>;
 }

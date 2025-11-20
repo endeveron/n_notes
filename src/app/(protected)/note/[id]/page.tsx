@@ -425,7 +425,7 @@ export default function NotePage() {
   ) : null;
 
   return (
-    <div className="fade size-full flex flex-col px-4">
+    <div className="fade min-h-dvh flex flex-col px-4 pb-4">
       <div className="sticky z-10 top-0 min-h-20 flex items-center gap-4 bg-background trans-c">
         <div className="flex flex-1 items-center gap-4 min-w-0 w-full overflow-hidden">
           <NavBack />

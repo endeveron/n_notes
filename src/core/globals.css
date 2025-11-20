@@ -303,6 +303,13 @@
 
   /* Markdown */
 
+  .prose > *:first-child {
+    @apply mt-0;
+  }
+  .prose > *:last-child {
+    @apply mb-0;
+  }
+
   /* Code blocks */
   .prose pre code {
     @apply my-2 rounded-md;
@@ -325,7 +332,16 @@
   .prose h4,
   .prose h5,
   .prose h6 {
-    @apply text-accent;
+    @apply my-6 text-accent;
+  }
+  .prose h1 {
+    @apply text-3xl!;
+  }
+  .prose h2 {
+    @apply text-2xl!;
+  }
+  .prose h3 {
+    @apply text-xl!;
   }
 
   /* Lists */
