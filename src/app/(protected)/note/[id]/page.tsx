@@ -94,6 +94,7 @@ export default function NotePage() {
       content: '',
     },
   });
+  const title = titleForm.watch('title');
   const content = contentForm.watch('content');
 
   const folderId = note && note.folderId;
@@ -155,6 +156,7 @@ export default function NotePage() {
 
     const res = await encryptNote({
       noteId,
+      title,
       content,
     });
 
@@ -379,7 +381,6 @@ export default function NotePage() {
     (async () => {
       const res = await fetchNote({ noteId });
       if (!res.success || !res.data?.id) {
-        toast('Unable to retrieve note data');
         return;
       }
 
